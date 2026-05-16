@@ -9,6 +9,7 @@ USE rambed_db;
 CREATE TABLE vendedores (
   id         INT AUTO_INCREMENT PRIMARY KEY,
   nombre     VARCHAR(100) NOT NULL,
+  identificacion VARCHAR(20) NOT NULL UNIQUE,
   telefono   VARCHAR(20),
   correo     VARCHAR(100),
   activo     TINYINT(1) NOT NULL DEFAULT 1,

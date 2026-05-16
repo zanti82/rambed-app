@@ -20,6 +20,9 @@ public class Vendedor {
     @Column(nullable = false, length = 100)
     private String nombre;
 
+    @Column(nullable = false, unique = true, length = 20)
+    private String identificacion;
+
     @Column(length = 20)
     private String telefono;
 
@@ -36,8 +39,9 @@ public class Vendedor {
     public Vendedor() {}
 
     // Constructor con campos obligatorios
-    public Vendedor(String nombre, String telefono, String correo, Byte activo) {
+    public Vendedor(String nombre, String identificacion, String telefono, String correo, Byte activo) {
         this.nombre = nombre;
+        this.identificacion = identificacion;
         this.telefono = telefono;
         this.correo = correo;
         this.activo = activo;
@@ -48,6 +52,10 @@ public class Vendedor {
 
     public String getNombre() { return nombre; }
     public void setNombre(String nombre) { this.nombre = nombre; }
+
+    public String getIdentificacion() { return identificacion; }
+    public void setIdentificacion(String identificacion) { this.identificacion = identificacion; }
+
 
     public String getTelefono() { return telefono; }
     public void setTelefono(String telefono) { this.telefono = telefono; }

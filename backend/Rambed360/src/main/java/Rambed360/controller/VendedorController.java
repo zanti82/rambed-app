@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -39,18 +40,41 @@ public class VendedorController {
 
     @GetMapping("/{id}")
     public ResponseEntity<Vendedor> buscarPorId(@PathVariable Long id) {
-        return ResponseEntity.ok(vendedorService.buscarPorId(id));
+
+        Vendedor vendedor = vendedorService.buscarPorId(id);
+        return ResponseEntity.ok(vendedor);
     }
 
     @PostMapping
     public ResponseEntity<Vendedor> guardar(@RequestBody Vendedor vendedor) {
-        return ResponseEntity.ok(vendedorService.guardar(vendedor));
+
+        Vendedor vendedorNew = vendedorService.guardar(vendedor);
+        return ResponseEntity.ok(vendedorNew);
+        
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<Vendedor> actualizar(@PathVariable Long id, @RequestBody Vendedor vendedor) {
-        return ResponseEntity.ok(vendedorService.actualizar(id, vendedor));
+        
+        Vendedor vendedorUpdate = vendedorService.actualizar(id, vendedor);
+        return ResponseEntity.ok(vendedorUpdate);
     }
+
+
+        // Activar una vendedor
+    @PatchMapping("/{id}/activar")
+    public ResponseEntity<Vendedor> activar(@PathVariable Long id) {
+        Vendedor vendedorActivado = vendedorService.activar(id);
+        return ResponseEntity.ok(vendedorActivado);
+    }
+
+    // Activar una vendedor
+    @PatchMapping("/{id}/desactivar")
+    public ResponseEntity<Vendedor> desactivar(@PathVariable Long id) {
+        Vendedor vendedorDesactivado = vendedorService.desactivar(id);
+        return ResponseEntity.ok(vendedorDesactivado);
+    }
+
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminar(@PathVariable Long id) {
