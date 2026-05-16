@@ -6,6 +6,7 @@ CREATE TABLE referencias (
   marca         VARCHAR(100) NOT NULL,
   referencia    VARCHAR(100) NOT NULL,
   descripcion   VARCHAR(255),
+  activo TINYINT NOT NULL DEFAULT 1,
   creado_en     DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   actualizado_en DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   UNIQUE KEY uq_marca_referencia (marca, referencia)

@@ -3,6 +3,7 @@ USE rambed_db;
 CREATE TABLE clientes (
   id            INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   nombre        VARCHAR(100) NOT NULL,
+  identificacion VARCHAR(20) NOT NULL UNIQUE,
   ciudad        VARCHAR(100) NOT NULL,
   direccion     VARCHAR(255) NOT NULL,
   correo        VARCHAR(100),

@@ -107,3 +107,15 @@ CREATE TABLE devoluciones (
   creado_en            DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (factura_detalle_id) REFERENCES factura_detalle(id)
 );
+
+
+-- Agregar identificacion unica a vendedores
+ALTER TABLE vendedores 
+ADD COLUMN identificacion VARCHAR(20) NOT NULL UNIQUE AFTER nombre;
+
+-- Agregar identificacion unica a clientes
+ALTER TABLE clientes 
+ADD COLUMN identificacion VARCHAR(20) NOT NULL UNIQUE AFTER nombre;
+
+ALTER TABLE referencias 
+ADD COLUMN activo TINYINT NOT NULL DEFAULT 1 AFTER descripcion;
