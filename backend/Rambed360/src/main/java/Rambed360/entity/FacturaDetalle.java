@@ -4,6 +4,9 @@ import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 @Entity
 @Table(name = "factura_detalle")
 public class FacturaDetalle {
@@ -16,11 +19,13 @@ public class FacturaDetalle {
     // Factura a la que pertenece este detalle
     @ManyToOne
     @JoinColumn(name = "factura_id", nullable = false)
+     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "cliente", "vendedor", "notas"})
     private Factura factura;
 
     // Registro de inventario que se esta vendiendo
     @ManyToOne
     @JoinColumn(name = "inventario_id", nullable = false)
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private Inventario inventario;
 
     // Cantidad de unidades vendidas
@@ -32,6 +37,7 @@ public class FacturaDetalle {
     private BigDecimal precioUnitario;
 
     // Fecha de creacion, la maneja la base de datos
+    @JsonIgnore
     @Column(name = "creado_en", updatable = false, insertable = false)
     private LocalDateTime creadoEn;
 

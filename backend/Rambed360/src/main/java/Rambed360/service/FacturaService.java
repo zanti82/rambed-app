@@ -1,7 +1,8 @@
 package Rambed360.service;
 
-import org.springframework.stereotype.Service;
-
+import Rambed360.dto.request.FacturaRequest;
+import Rambed360.dto.request.PagoRequest;
+import Rambed360.dto.response.FacturaResponse;
 import Rambed360.entity.Cliente;
 import Rambed360.entity.EstadoFactura;
 import Rambed360.entity.Factura;
@@ -13,9 +14,11 @@ import Rambed360.repository.FacturaDetalleRepository;
 import Rambed360.repository.FacturaRepository;
 import Rambed360.repository.InventarioRepository;
 import Rambed360.repository.VendedorRepository;
-
+import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -31,39 +34,57 @@ public class FacturaService {
     // Repositorio para validar que el vendedor exista
     private final VendedorRepository vendedorRepository;
 
-   // Agrega los dos repositorios nuevos al FacturaService
-private final FacturaDetalleRepository facturaDetalleRepository;
-private final InventarioRepository inventarioRepository;
+    // Repositorio para obtener los items al anular
+    private final FacturaDetalleRepository facturaDetalleRepository;
 
-// Constructor actualizado con las cinco dependencias
-public FacturaService(FacturaRepository facturaRepository,
-                      ClienteRepository clienteRepository,
-                      VendedorRepository vendedorRepository,
-                      FacturaDetalleRepository facturaDetalleRepository,
-                      InventarioRepository inventarioRepository) {
-    this.facturaRepository = facturaRepository;
-    this.clienteRepository = clienteRepository;
-    this.vendedorRepository = vendedorRepository;
-    this.facturaDetalleRepository = facturaDetalleRepository;
-    this.inventarioRepository = inventarioRepository;
-}
+    // Repositorio para devolver stock al anular
+    private final InventarioRepository inventarioRepository;
 
-    // Retorna todas las facturas
-    public List<Factura> listarTodas() {
+    // Constructor explicito con las cinco dependencias
+    public FacturaService(FacturaRepository facturaRepository,
+                          ClienteRepository clienteRepository,
+                          VendedorRepository vendedorRepository,
+                          FacturaDetalleRepository facturaDetalleRepository,
+                          InventarioRepository inventarioRepository) {
+        this.facturaRepository = facturaRepository;
+        this.clienteRepository = clienteRepository;
+        this.vendedorRepository = vendedorRepository;
+        this.facturaDetalleRepository = facturaDetalleRepository;
+        this.inventarioRepository = inventarioRepository;
+    }
+
+    // Retorna todas las facturas como DTO
+    public List<FacturaResponse> listarTodas() {
         // Trae todos los registros de la tabla facturas
         List<Factura> todasLasFacturas = facturaRepository.findAll();
-        return todasLasFacturas;
+
+        // Convierte cada factura a DTO y la agrega a la lista
+        List<FacturaResponse> respuesta = new ArrayList<>();
+        for (Factura factura : todasLasFacturas) {
+            FacturaResponse dto = convertirAResponse(factura);
+            respuesta.add(dto);
+        }
+
+        return respuesta;
     }
 
-    // Retorna facturas filtradas por estado
-    public List<Factura> listarPorEstado(EstadoFactura estado) {
+    // Retorna facturas filtradas por estado como DTO
+    public List<FacturaResponse> listarPorEstado(EstadoFactura estado) {
         // Busca facturas con ese estado especifico
         List<Factura> facturasPorEstado = facturaRepository.findByEstado(estado);
-        return facturasPorEstado;
+
+        // Convierte cada factura a DTO y la agrega a la lista
+        List<FacturaResponse> respuesta = new ArrayList<>();
+        for (Factura factura : facturasPorEstado) {
+            FacturaResponse dto = convertirAResponse(factura);
+            respuesta.add(dto);
+        }
+
+        return respuesta;
     }
 
-    // Retorna facturas de un cliente especifico
-    public List<Factura> listarPorCliente(Long clienteId) {
+    // Retorna facturas de un cliente especifico como DTO
+    public List<FacturaResponse> listarPorCliente(Long clienteId) {
         // Busca el cliente en la base de datos
         Optional<Cliente> resultado = clienteRepository.findById(clienteId);
 
@@ -77,11 +98,19 @@ public FacturaService(FacturaRepository facturaRepository,
 
         // Busca todas las facturas de ese cliente
         List<Factura> facturasPorCliente = facturaRepository.findByCliente(cliente);
-        return facturasPorCliente;
+
+        // Convierte cada factura a DTO y la agrega a la lista
+        List<FacturaResponse> respuesta = new ArrayList<>();
+        for (Factura factura : facturasPorCliente) {
+            FacturaResponse dto = convertirAResponse(factura);
+            respuesta.add(dto);
+        }
+
+        return respuesta;
     }
 
-    // Retorna facturas de un vendedor especifico
-    public List<Factura> listarPorVendedor(Long vendedorId) {
+    // Retorna facturas de un vendedor especifico como DTO
+    public List<FacturaResponse> listarPorVendedor(Long vendedorId) {
         // Busca el vendedor en la base de datos
         Optional<Vendedor> resultado = vendedorRepository.findById(vendedorId);
 
@@ -95,11 +124,19 @@ public FacturaService(FacturaRepository facturaRepository,
 
         // Busca todas las facturas de ese vendedor
         List<Factura> facturasPorVendedor = facturaRepository.findByVendedor(vendedor);
-        return facturasPorVendedor;
+
+        // Convierte cada factura a DTO y la agrega a la lista
+        List<FacturaResponse> respuesta = new ArrayList<>();
+        for (Factura factura : facturasPorVendedor) {
+            FacturaResponse dto = convertirAResponse(factura);
+            respuesta.add(dto);
+        }
+
+        return respuesta;
     }
 
-    // Busca una factura por su ID
-    public Factura buscarPorId(Long id) {
+    // Busca una factura por su ID y la retorna como DTO
+    public FacturaResponse buscarPorId(Long id) {
         // Intenta encontrar la factura en la base de datos
         Optional<Factura> resultado = facturaRepository.findById(id);
 
@@ -108,44 +145,47 @@ public FacturaService(FacturaRepository facturaRepository,
             throw new RuntimeException("Factura no encontrada con id: " + id);
         }
 
-        // Guarda y retorna la factura encontrada
+        // Guarda la factura encontrada
         Factura facturaEncontrada = resultado.get();
-        return facturaEncontrada;
+
+        // Convierte y retorna como DTO
+        FacturaResponse respuesta = convertirAResponse(facturaEncontrada);
+        return respuesta;
     }
 
-    // Guarda una factura nueva
-    public Factura guardar(Factura factura) {
+    // Guarda una factura nueva recibiendo un DTO
+    public FacturaResponse guardar(FacturaRequest request) {
 
         // Valida que el numero de factura no venga vacio
-        if (factura.getNumeroFactura() == null || factura.getNumeroFactura().trim().isEmpty()) {
+        if (request.getNumeroFactura() == null || request.getNumeroFactura().trim().isEmpty()) {
             throw new RuntimeException("El numero de factura es obligatorio");
         }
 
         // Valida que venga un cliente
-        if (factura.getCliente() == null || factura.getCliente().getId() == null) {
+        if (request.getClienteId() == null) {
             throw new RuntimeException("El cliente es obligatorio");
         }
 
         // Valida que venga un vendedor
-        if (factura.getVendedor() == null || factura.getVendedor().getId() == null) {
+        if (request.getVendedorId() == null) {
             throw new RuntimeException("El vendedor es obligatorio");
         }
 
         // Valida que venga la fecha de emision
-        if (factura.getFechaEmision() == null) {
+        if (request.getFechaEmision() == null) {
             throw new RuntimeException("La fecha de emision es obligatoria");
         }
 
         // Valida que no exista otra factura con el mismo numero
-        Optional<Factura> existente = facturaRepository.findByNumeroFactura(factura.getNumeroFactura().trim());
+        Optional<Factura> existente = facturaRepository.findByNumeroFactura(request.getNumeroFactura().trim());
 
         // Si ya existe lanza un error
         if (existente.isPresent()) {
-            throw new RuntimeException("Ya existe una factura con el numero: " + factura.getNumeroFactura());
+            throw new RuntimeException("Ya existe una factura con el numero: " + request.getNumeroFactura());
         }
 
         // Busca el cliente en la base de datos
-        Optional<Cliente> clienteResultado = clienteRepository.findById(factura.getCliente().getId());
+        Optional<Cliente> clienteResultado = clienteRepository.findById(request.getClienteId());
 
         // Si el cliente no existe lanza un error
         if (clienteResultado.isPresent() == false) {
@@ -153,33 +193,55 @@ public FacturaService(FacturaRepository facturaRepository,
         }
 
         // Busca el vendedor en la base de datos
-        Optional<Vendedor> vendedorResultado = vendedorRepository.findById(factura.getVendedor().getId());
+        Optional<Vendedor> vendedorResultado = vendedorRepository.findById(request.getVendedorId());
 
         // Si el vendedor no existe lanza un error
         if (vendedorResultado.isPresent() == false) {
             throw new RuntimeException("El vendedor no existe");
         }
 
-        // Asigna el cliente y vendedor completos a la factura
-        factura.setCliente(clienteResultado.get());
-        factura.setVendedor(vendedorResultado.get());
+        // Crea el objeto Factura vacio
+        Factura factурaNueva = new Factura();
+
+        // Asigna el numero de factura limpio
+        factурaNueva.setNumeroFactura(request.getNumeroFactura().trim());
+
+        // Asigna el cliente encontrado
+        factурaNueva.setCliente(clienteResultado.get());
+
+        // Asigna el vendedor encontrado
+        factурaNueva.setVendedor(vendedorResultado.get());
+
+        // Asigna la fecha de emision
+        factурaNueva.setFechaEmision(request.getFechaEmision());
+
+        // Asigna las notas opcionales
+        factурaNueva.setNotas(request.getNotas());
 
         // Asigna el estado pendiente por defecto
-        factura.setEstado(EstadoFactura.pendiente);
+        factурaNueva.setEstado(EstadoFactura.pendiente);
 
-        // Limpia el numero de factura
-        factura.setNumeroFactura(factura.getNumeroFactura().trim());
+        // Guarda la factura en la base de datos
+        Factura facturaGuardada = facturaRepository.save(factурaNueva);
 
-        // Guarda y retorna la nueva factura
-        Factura facturaGuardada = facturaRepository.save(factura);
-        return facturaGuardada;
+        // Convierte y retorna como DTO
+        FacturaResponse respuesta = convertirAResponse(facturaGuardada);
+        return respuesta;
     }
 
-    // Registra el pago de una factura y aplica el descuento si viene
-    public Factura registrarPago(Long id, BigDecimal descuentoPorcentaje) {
+    // Registra el pago de una factura y aplica descuento si viene
+    public FacturaResponse registrarPago(Long id, PagoRequest request) {
 
         // Verifica que la factura exista
-        Factura factura = buscarPorId(id);
+        Optional<Factura> resultado = facturaRepository.findById(id);
+
+        // Si no existe lanza un error
+        if (resultado.isPresent() == false) {
+            throw new RuntimeException("Factura no encontrada con id: " + id);
+        }
+
+        // Guarda la factura encontrada
+        Factura factura = resultado.get();
 
         // Valida que la factura no este ya pagada
         if (factura.getEstado() == EstadoFactura.pagada) {
@@ -192,14 +254,14 @@ public FacturaService(FacturaRepository facturaRepository,
         }
 
         // Si viene descuento lo aplica, si no el total es igual al subtotal
-        if (descuentoPorcentaje != null && descuentoPorcentaje.compareTo(BigDecimal.ZERO) > 0) {
+        if (request.getDescuentoPorcentaje() != null && request.getDescuentoPorcentaje().compareTo(BigDecimal.ZERO) > 0) {
 
             // Guarda el porcentaje de descuento
-            factura.setDescuentoPorcentaje(descuentoPorcentaje);
+            factura.setDescuentoPorcentaje(request.getDescuentoPorcentaje());
 
             // Calcula el valor del descuento sobre el subtotal
             BigDecimal valorDescuento = factura.getSubtotal()
-                .multiply(descuentoPorcentaje)
+                .multiply(request.getDescuentoPorcentaje())
                 .divide(new BigDecimal("100"), 2, RoundingMode.HALF_UP);
 
             // Calcula el total restando el descuento al subtotal
@@ -214,31 +276,32 @@ public FacturaService(FacturaRepository facturaRepository,
         }
 
         // Registra la fecha de pago con la fecha actual
-        factura.setFechaPago(java.time.LocalDate.now());
+        factura.setFechaPago(LocalDate.now());
 
         // Cambia el estado a pagada
         factura.setEstado(EstadoFactura.pagada);
 
-        // Guarda y retorna la factura pagada
-        Factura facturaPageda = facturaRepository.save(factura);
-        return facturaPageda;
+        // Guarda la factura actualizada
+        Factura facturaPagada = facturaRepository.save(factura);
+
+        // Convierte y retorna como DTO
+        FacturaResponse respuesta = convertirAResponse(facturaPagada);
+        return respuesta;
     }
 
- 
-
-    // SOLO DESARROLLO - elimina fisicamente la factura
-    public void eliminar(Long id) {
-        // Verifica que la factura exista antes de eliminar
-        buscarPorId(id);
-        facturaRepository.deleteById(id);
-    }
-
-
-     // Anula una factura y devuelve las unidades al inventario
-    public Factura anular(Long id) {
+    // Anula una factura y devuelve las unidades al inventario
+    public FacturaResponse anular(Long id) {
 
         // Verifica que la factura exista
-        Factura factura = buscarPorId(id);
+        Optional<Factura> resultado = facturaRepository.findById(id);
+
+        // Si no existe lanza un error
+        if (resultado.isPresent() == false) {
+            throw new RuntimeException("Factura no encontrada con id: " + id);
+        }
+
+        // Guarda la factura encontrada
+        Factura factura = resultado.get();
 
         // Valida que la factura no este ya anulada
         if (factura.getEstado() == EstadoFactura.anulada) {
@@ -266,8 +329,69 @@ public FacturaService(FacturaRepository facturaRepository,
         // Cambia el estado de la factura a anulada
         factura.setEstado(EstadoFactura.anulada);
 
-        // Guarda y retorna la factura anulada
+        // Guarda la factura anulada
         Factura facturaAnulada = facturaRepository.save(factura);
-        return facturaAnulada;
+
+        // Convierte y retorna como DTO
+        FacturaResponse respuesta = convertirAResponse(facturaAnulada);
+        return respuesta;
+    }
+
+    // SOLO DESARROLLO - elimina fisicamente la factura
+    public void eliminar(Long id) {
+        // Verifica que la factura exista antes de eliminar
+        Optional<Factura> resultado = facturaRepository.findById(id);
+
+        // Si no existe lanza un error
+        if (resultado.isPresent() == false) {
+            throw new RuntimeException("Factura no encontrada con id: " + id);
+        }
+
+        facturaRepository.deleteById(id);
+    }
+
+    // Convierte un Entity Factura a DTO de respuesta
+    private FacturaResponse convertirAResponse(Factura factura) {
+
+        // Crea el objeto de respuesta vacio
+        FacturaResponse response = new FacturaResponse();
+
+        // Asigna el ID de la factura
+        response.setId(factura.getId());
+
+        // Asigna el numero de factura
+        response.setNumeroFactura(factura.getNumeroFactura());
+
+        // Asigna el ID y nombre del cliente
+        response.setClienteId(factura.getCliente().getId());
+        response.setClienteNombre(factura.getCliente().getNombre());
+
+       
+        // Asigna el ID y nombre del vendedor
+        response.setVendedorId(factura.getVendedor().getId());
+        response.setVendedorNombre(factura.getVendedor().getNombre());
+
+        // Asigna la fecha de emision
+        response.setFechaEmision(factura.getFechaEmision());
+
+        // Asigna la fecha de pago
+        response.setFechaPago(factura.getFechaPago());
+
+        // Asigna el porcentaje de descuento
+        response.setDescuentoPorcentaje(factura.getDescuentoPorcentaje());
+
+        // Asigna el subtotal
+        response.setSubtotal(factura.getSubtotal());
+
+        // Asigna el total
+        response.setTotal(factura.getTotal());
+
+        // Asigna el estado
+        response.setEstado(factura.getEstado());
+
+        // Asigna las notas
+        response.setNotas(factura.getNotas());
+
+        return response;
     }
 }

@@ -16,7 +16,11 @@ public class CorsConfig {
                 registry.addMapping("/api/**")
                         .allowedOrigins("http://localhost:5173")
                         .allowedMethods("GET", "POST", "PUT", "DELETE")
-                        .allowedHeaders("*");
+                        .allowedHeaders("*")
+                        .allowCredentials(true)
+
+                    // Tiempo en segundos que el navegador cachea la configuracion CORS
+                    .maxAge(3600);
             }
         };
     }

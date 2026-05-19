@@ -1,11 +1,10 @@
 package Rambed360.controller;
 
+import Rambed360.dto.request.FacturaDetalleRequest;
+import Rambed360.dto.response.FacturaDetalleResponse;
+import Rambed360.service.FacturaDetalleService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import Rambed360.entity.FacturaDetalle;
-import Rambed360.service.FacturaDetalleService;
-
 import java.util.List;
 
 @RestController
@@ -20,17 +19,17 @@ public class FacturaDetalleController {
         this.facturaDetalleService = facturaDetalleService;
     }
 
-    // Retorna todos los items de una factura
+    // Retorna todos los items de una factura como DTO
     @GetMapping("/factura/{facturaId}")
-    public List<FacturaDetalle> listarPorFactura(@PathVariable Long facturaId) {
-        List<FacturaDetalle> itemsDeFactura = facturaDetalleService.listarPorFactura(facturaId);
-        return itemsDeFactura;
+    public List<FacturaDetalleResponse> listarPorFactura(@PathVariable Long facturaId) {
+        List<FacturaDetalleResponse> items = facturaDetalleService.listarPorFactura(facturaId);
+        return items;
     }
 
-    // Agrega un item a una factura
+    // Agrega un item a una factura recibiendo un DTO
     @PostMapping
-    public ResponseEntity<FacturaDetalle> agregar(@RequestBody FacturaDetalle detalle) {
-        FacturaDetalle detalleGuardado = facturaDetalleService.agregar(detalle);
+    public ResponseEntity<FacturaDetalleResponse> agregar(@RequestBody FacturaDetalleRequest request) {
+        FacturaDetalleResponse detalleGuardado = facturaDetalleService.agregar(request);
         return ResponseEntity.ok(detalleGuardado);
     }
 

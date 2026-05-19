@@ -3,6 +3,8 @@ package Rambed360.entity;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Entity
 @Table(name = "referencias")
 public class Referencia {
@@ -29,10 +31,12 @@ public class Referencia {
     private Byte activo = 1;
 
     // Fecha de creacion, la maneja la base de datos
+    @JsonIgnore
     @Column(name = "creado_en", updatable = false, insertable = false)
     private LocalDateTime creadoEn;
 
     // Fecha de ultima actualizacion, la maneja la base de datos
+    @JsonIgnore
     @Column(name = "actualizado_en", insertable = false, updatable = false)
     private LocalDateTime actualizadoEn;
 

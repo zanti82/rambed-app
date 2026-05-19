@@ -2,6 +2,9 @@ package Rambed360.entity;
 
 import java.time.LocalDateTime;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -50,6 +53,7 @@ public class Cliente {
 
     // Vendedor asignado al cliente
     @ManyToOne
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     @JoinColumn(name = "vendedor_id", nullable = false)
     private Vendedor vendedor;
 
@@ -70,10 +74,12 @@ public class Cliente {
     private Byte activo = 1;
 
     // Fecha de creacion, la maneja la base de datos
+    @JsonIgnore
     @Column(name = "creado_en", updatable = false, insertable = false)
     private LocalDateTime creadoEn;
 
     // Fecha de ultima actualizacion, la maneja la base de datos
+    @JsonIgnore
     @Column(name = "actualizado_en", insertable = false, updatable = false)
     private LocalDateTime actualizadoEn;
 
