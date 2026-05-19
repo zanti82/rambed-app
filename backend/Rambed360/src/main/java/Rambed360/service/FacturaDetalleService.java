@@ -1,16 +1,17 @@
 package Rambed360.service;
 
-import org.springframework.stereotype.Service;
-
-import Rambed360.entity.EstadoFactura;
+import Rambed360.dto.request.FacturaDetalleRequest;
+import Rambed360.dto.response.FacturaDetalleResponse;
 import Rambed360.entity.Factura;
 import Rambed360.entity.FacturaDetalle;
+import Rambed360.entity.EstadoFactura;
 import Rambed360.entity.Inventario;
 import Rambed360.repository.FacturaDetalleRepository;
 import Rambed360.repository.FacturaRepository;
 import Rambed360.repository.InventarioRepository;
-
+import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -35,8 +36,8 @@ public class FacturaDetalleService {
         this.inventarioRepository = inventarioRepository;
     }
 
-    // Retorna todos los items de una factura
-    public List<FacturaDetalle> listarPorFactura(Long facturaId) {
+    // Retorna todos los items de una factura como DTO
+    public List<FacturaDetalleResponse> listarPorFactura(Long facturaId) {
         // Busca la factura en la base de datos
         Optional<Factura> resultado = facturaRepository.findById(facturaId);
 
@@ -49,35 +50,43 @@ public class FacturaDetalleService {
         Factura factura = resultado.get();
 
         // Busca todos los items de esa factura
-        List<FacturaDetalle> itemsDeFactura = facturaDetalleRepository.findByFactura(factura);
-        return itemsDeFactura;
+        List<FacturaDetalle> items = facturaDetalleRepository.findByFactura(factura);
+
+        // Convierte cada item a DTO y los agrega a la lista de respuesta
+        List<FacturaDetalleResponse> respuesta = new ArrayList<>();
+        for (FacturaDetalle item : items) {
+            FacturaDetalleResponse dto = convertirAResponse(item);
+            respuesta.add(dto);
+        }
+
+        return respuesta;
     }
 
     // Agrega un item a una factura y descuenta del inventario
-    public FacturaDetalle agregar(FacturaDetalle detalle) {
+    public FacturaDetalleResponse agregar(FacturaDetalleRequest request) {
 
         // Valida que venga una factura
-        if (detalle.getFactura() == null || detalle.getFactura().getId() == null) {
+        if (request.getFacturaId() == null) {
             throw new RuntimeException("La factura es obligatoria");
         }
 
         // Valida que venga un inventario
-        if (detalle.getInventario() == null || detalle.getInventario().getId() == null) {
+        if (request.getInventarioId() == null) {
             throw new RuntimeException("El producto es obligatorio");
         }
 
         // Valida que la cantidad sea mayor a cero
-        if (detalle.getCantidad() == null || detalle.getCantidad() <= 0) {
+        if (request.getCantidad() == null || request.getCantidad() <= 0) {
             throw new RuntimeException("La cantidad debe ser mayor a cero");
         }
 
         // Valida que el precio unitario sea mayor a cero
-        if (detalle.getPrecioUnitario() == null || detalle.getPrecioUnitario().compareTo(BigDecimal.ZERO) <= 0) {
+        if (request.getPrecioUnitario() == null || request.getPrecioUnitario().compareTo(BigDecimal.ZERO) <= 0) {
             throw new RuntimeException("El precio unitario debe ser mayor a cero");
         }
 
         // Busca la factura en la base de datos
-        Optional<Factura> facturaResultado = facturaRepository.findById(detalle.getFactura().getId());
+        Optional<Factura> facturaResultado = facturaRepository.findById(request.getFacturaId());
 
         // Si la factura no existe lanza un error
         if (facturaResultado.isPresent() == false) {
@@ -93,7 +102,7 @@ public class FacturaDetalleService {
         }
 
         // Busca el registro de inventario en la base de datos
-        Optional<Inventario> inventarioResultado = inventarioRepository.findById(detalle.getInventario().getId());
+        Optional<Inventario> inventarioResultado = inventarioRepository.findById(request.getInventarioId());
 
         // Si el inventario no existe lanza un error
         if (inventarioResultado.isPresent() == false) {
@@ -104,33 +113,40 @@ public class FacturaDetalleService {
         Inventario inventario = inventarioResultado.get();
 
         // Valida que haya suficiente stock disponible
-        if (inventario.getCantidad() < detalle.getCantidad()) {
+        if (inventario.getCantidad() < request.getCantidad()) {
             throw new RuntimeException("Stock insuficiente. Disponible: " + inventario.getCantidad());
         }
 
         // Descuenta las unidades del inventario
         Integer stockActual = inventario.getCantidad();
-        Integer stockNuevo = stockActual - detalle.getCantidad();
+        Integer stockNuevo = stockActual - request.getCantidad();
         inventario.setCantidad(stockNuevo);
         inventarioRepository.save(inventario);
 
-        // Asigna la factura y el inventario completos al detalle
+        // Crea el nuevo item de factura con los datos del request
+        FacturaDetalle detalle = new FacturaDetalle();
         detalle.setFactura(factura);
         detalle.setInventario(inventario);
+        detalle.setCantidad(request.getCantidad());
+        detalle.setPrecioUnitario(request.getPrecioUnitario());
 
-        // Calcula el nuevo subtotal de la factura sumando este item
-        BigDecimal subtotalItem = detalle.getPrecioUnitario().multiply(new BigDecimal(detalle.getCantidad()));
-        BigDecimal subtotalActual = factura.getSubtotal();
-        BigDecimal subtotalNuevo = subtotalActual.add(subtotalItem);
+        // Calcula el subtotal de este item
+        BigDecimal subtotalItem = request.getPrecioUnitario().multiply(new BigDecimal(request.getCantidad()));
+
+        // Suma el subtotal del item al subtotal actual de la factura
+        BigDecimal subtotalNuevo = factura.getSubtotal().add(subtotalItem);
 
         // Actualiza el subtotal y total de la factura
         factura.setSubtotal(subtotalNuevo);
         factura.setTotal(subtotalNuevo);
         facturaRepository.save(factura);
 
-        // Guarda y retorna el nuevo item
+        // Guarda el nuevo item en la base de datos
         FacturaDetalle detalleGuardado = facturaDetalleRepository.save(detalle);
-        return detalleGuardado;
+
+        // Convierte el item guardado a DTO y lo retorna
+        FacturaDetalleResponse respuesta = convertirAResponse(detalleGuardado);
+        return respuesta;
     }
 
     // Elimina un item de una factura y devuelve las unidades al inventario
@@ -169,7 +185,43 @@ public class FacturaDetalleService {
         factura.setTotal(subtotalNuevo);
         facturaRepository.save(factura);
 
-        // Elimina el item de la factura
+        // Elimina el item de la base de datos
         facturaDetalleRepository.deleteById(id);
+    }
+
+    // Convierte un Entity FacturaDetalle a DTO de respuesta
+    private FacturaDetalleResponse convertirAResponse(FacturaDetalle detalle) {
+
+        // Crea el objeto de respuesta
+        FacturaDetalleResponse response = new FacturaDetalleResponse();
+
+        // Asigna el ID del item
+        response.setId(detalle.getId());
+
+        // Asigna el ID y numero de la factura
+        response.setFacturaId(detalle.getFactura().getId());
+        response.setNumeroFactura(detalle.getFactura().getNumeroFactura());
+
+        // Asigna el ID del inventario
+        response.setInventarioId(detalle.getInventario().getId());
+
+        // Asigna marca y referencia del producto
+        response.setMarca(detalle.getInventario().getReferencia().getMarca());
+        response.setReferencia(detalle.getInventario().getReferencia().getReferencia());
+
+        // Asigna la talla del producto
+        response.setTalla(detalle.getInventario().getTalla());
+
+        // Asigna la cantidad vendida
+        response.setCantidad(detalle.getCantidad());
+
+        // Asigna el precio unitario
+        response.setPrecioUnitario(detalle.getPrecioUnitario());
+
+        // Calcula y asigna el subtotal de este item
+        BigDecimal subtotal = detalle.getPrecioUnitario().multiply(new BigDecimal(detalle.getCantidad()));
+        response.setSubtotal(subtotal);
+
+        return response;
     }
 }

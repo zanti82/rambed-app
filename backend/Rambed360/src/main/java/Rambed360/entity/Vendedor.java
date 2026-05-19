@@ -2,6 +2,8 @@ package Rambed360.entity;
 
 import java.time.LocalDateTime;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -32,6 +34,7 @@ public class Vendedor {
     @Column(nullable = false)
     private Byte activo = 1;
 
+    @JsonIgnore
     @Column(name = "creado_en", updatable = false, insertable = false)
     private LocalDateTime creadoEn;
 

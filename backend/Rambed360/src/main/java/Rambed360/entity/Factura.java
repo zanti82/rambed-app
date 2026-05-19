@@ -5,6 +5,9 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 @Entity
 @Table(name = "facturas")
 public class Factura {
@@ -21,11 +24,13 @@ public class Factura {
     // Cliente al que se le emite la factura
     @ManyToOne
     @JoinColumn(name = "cliente_id", nullable = false)
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private Cliente cliente;
 
     // Vendedor que realizo la venta
     @ManyToOne
     @JoinColumn(name = "vendedor_id", nullable = false)
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private Vendedor vendedor;
 
     // Fecha en que se emite la factura
@@ -58,10 +63,12 @@ public class Factura {
     private String notas;
 
     // Fecha de creacion, la maneja la base de datos
+    @JsonIgnore
     @Column(name = "creado_en", updatable = false, insertable = false)
     private LocalDateTime creadoEn;
 
     // Fecha de ultima actualizacion, la maneja la base de datos
+    @JsonIgnore
     @Column(name = "actualizado_en", insertable = false, updatable = false)
     private LocalDateTime actualizadoEn;
 

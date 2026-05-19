@@ -3,6 +3,9 @@ package Rambed360.entity;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -26,6 +29,7 @@ public class Inventario {
     // Referencia del producto a la que pertenece este stock
     @ManyToOne
     @JoinColumn(name = "referencia_id", nullable = false)
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private Referencia referencia;
 
     // Talla del producto usando los valores definidos en la base de datos
@@ -42,10 +46,12 @@ public class Inventario {
     private BigDecimal precio = BigDecimal.ZERO;
 
     // Fecha de creacion, la maneja la base de datos
+    @JsonIgnore
     @Column(name = "creado_en", updatable = false, insertable = false)
     private LocalDateTime creadoEn;
 
     // Fecha de ultima actualizacion, la maneja la base de datos
+    @JsonIgnore
     @Column(name = "actualizado_en", insertable = false, updatable = false)
     private LocalDateTime actualizadoEn;
 

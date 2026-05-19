@@ -1,13 +1,12 @@
 package Rambed360.controller;
 
+import Rambed360.dto.request.FacturaRequest;
+import Rambed360.dto.request.PagoRequest;
+import Rambed360.dto.response.FacturaResponse;
+import Rambed360.entity.EstadoFactura;
+import Rambed360.service.FacturaService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import Rambed360.entity.EstadoFactura;
-import Rambed360.entity.Factura;
-import Rambed360.service.FacturaService;
-
-import java.math.BigDecimal;
 import java.util.List;
 
 @RestController
@@ -22,62 +21,61 @@ public class FacturaController {
         this.facturaService = facturaService;
     }
 
-    // Retorna todas las facturas
+    // Retorna todas las facturas como DTO
     @GetMapping
-    public List<Factura> listarTodas() {
-        List<Factura> todasLasFacturas = facturaService.listarTodas();
-        return todasLasFacturas;
+    public List<FacturaResponse> listarTodas() {
+        List<FacturaResponse> facturas = facturaService.listarTodas();
+        return facturas;
     }
 
     // Retorna facturas filtradas por estado
     @GetMapping("/estado/{estado}")
-    public List<Factura> listarPorEstado(@PathVariable EstadoFactura estado) {
-        List<Factura> facturasPorEstado = facturaService.listarPorEstado(estado);
-        return facturasPorEstado;
+    public List<FacturaResponse> listarPorEstado(@PathVariable EstadoFactura estado) {
+        List<FacturaResponse> facturas = facturaService.listarPorEstado(estado);
+        return facturas;
     }
 
     // Retorna facturas de un cliente especifico
     @GetMapping("/cliente/{clienteId}")
-    public List<Factura> listarPorCliente(@PathVariable Long clienteId) {
-        List<Factura> facturasPorCliente = facturaService.listarPorCliente(clienteId);
-        return facturasPorCliente;
+    public List<FacturaResponse> listarPorCliente(@PathVariable Long clienteId) {
+        List<FacturaResponse> facturas = facturaService.listarPorCliente(clienteId);
+        return facturas;
     }
 
     // Retorna facturas de un vendedor especifico
     @GetMapping("/vendedor/{vendedorId}")
-    public List<Factura> listarPorVendedor(@PathVariable Long vendedorId) {
-        List<Factura> facturasPorVendedor = facturaService.listarPorVendedor(vendedorId);
-        return facturasPorVendedor;
+    public List<FacturaResponse> listarPorVendedor(@PathVariable Long vendedorId) {
+        List<FacturaResponse> facturas = facturaService.listarPorVendedor(vendedorId);
+        return facturas;
     }
 
     // Busca una factura por su ID
     @GetMapping("/{id}")
-    public ResponseEntity<Factura> buscarPorId(@PathVariable Long id) {
-        Factura facturaEncontrada = facturaService.buscarPorId(id);
-        return ResponseEntity.ok(facturaEncontrada);
+    public ResponseEntity<FacturaResponse> buscarPorId(@PathVariable Long id) {
+        FacturaResponse factura = facturaService.buscarPorId(id);
+        return ResponseEntity.ok(factura);
     }
 
-    // Crea una factura nueva
+    // Crea una factura nueva recibiendo un DTO
     @PostMapping
-    public ResponseEntity<Factura> guardar(@RequestBody Factura factura) {
-        Factura facturaGuardada = facturaService.guardar(factura);
+    public ResponseEntity<FacturaResponse> guardar(@RequestBody FacturaRequest request) {
+        FacturaResponse facturaGuardada = facturaService.guardar(request);
         return ResponseEntity.ok(facturaGuardada);
     }
 
     // Registra el pago de una factura con descuento opcional
     @PatchMapping("/{id}/pagar")
-    public ResponseEntity<Factura> registrarPago(
+    public ResponseEntity<FacturaResponse> registrarPago(
             @PathVariable Long id,
-            @RequestParam(required = false) BigDecimal descuento) {
-
-        Factura facturaPagada = facturaService.registrarPago(id, descuento);
+            @RequestBody PagoRequest request) {
+        FacturaResponse facturaPagada = facturaService.registrarPago(id, request);
         return ResponseEntity.ok(facturaPagada);
     }
 
-    // Anula una factura
+    // Anula una factura y devuelve stock al inventario
     @PatchMapping("/{id}/anular")
-    public ResponseEntity<Factura> anular(@PathVariable Long id) {
-        Factura facturaAnulada = facturaService.anular(id);
+    public ResponseEntity<FacturaResponse> anular(@PathVariable Long id) {
+        FacturaResponse facturaAnulada = facturaService.anular(id);
         return ResponseEntity.ok(facturaAnulada);
     }
 
