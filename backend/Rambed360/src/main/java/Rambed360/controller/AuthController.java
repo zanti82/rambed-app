@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import java.util.Optional;
 
@@ -38,6 +39,8 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest request) {
 
+        System.out.println(request.getUsername());
+
         // Crea el objeto de autenticacion con username y password
         UsernamePasswordAuthenticationToken credenciales = new UsernamePasswordAuthenticationToken(
             request.getUsername(),
@@ -51,6 +54,9 @@ public class AuthController {
         // Busca el usuario completo en la base de datos para obtener el rol y vendedorId
         Optional<Usuario> usuarioResultado = usuarioRepository.findByUsername(request.getUsername());
 
+        if(usuarioResultado.isPresent()){
+            System.out.println("si llega");
+        }
         // Guarda el usuario encontrado
         Usuario usuario = usuarioResultado.get();
 
@@ -70,5 +76,14 @@ public class AuthController {
         LoginResponse respuesta = new LoginResponse(token, usuario.getUsername(), nombreRol, vendedorId);
 
         return ResponseEntity.ok(respuesta);
+    }
+
+        // SOLO DESARROLLO - genera un hash BCrypt para una contrasena
+    @GetMapping("/hash")
+    public String generarHash(@RequestParam String password) {
+        // Crea un encoder BCrypt y encripta la contrasena
+        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+        String hash = encoder.encode(password);
+        return hash;
     }
 }

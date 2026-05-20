@@ -1,0 +1,125 @@
+/* Contenedor principal del login que ocupa toda la pantalla */
+.login-contenedor {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--fondo-principal);
+    padding: 20px;
+  }
+  
+  /* Card central del formulario de login */
+  .login-card {
+    width: 100%;
+    max-width: 400px;
+    background-color: var(--fondo-secundario);
+    border: 1px solid var(--borde);
+    border-radius: 16px;
+    padding: 40px;
+  }
+  
+  /* Seccion del logo en el login */
+  .login-logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 32px;
+  }
+  
+  /* Cuadro rojo del logo */
+  .login-logo-icono {
+    width: 44px;
+    height: 44px;
+    background-color: var(--rojo-principal);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 20px;
+    color: #fff;
+  }
+  
+  /* Nombre de la app en el login */
+  .login-logo-nombre {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--blanco-texto);
+  }
+  
+  /* Subtitulo del logo */
+  .login-logo-subtitulo {
+    font-size: 12px;
+    color: var(--gris-texto);
+  }
+  
+  /* Titulo del formulario */
+  .login-titulo {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--blanco-texto);
+    margin-bottom: 6px;
+    text-align: center;
+  }
+  
+  /* Descripcion del formulario */
+  .login-descripcion {
+    font-size: 13px;
+    color: var(--gris-texto);
+    text-align: center;
+    margin-bottom: 28px;
+  }
+  
+  /* Cada campo del formulario */
+  .login-campo {
+    margin-bottom: 16px;
+  }
+  
+  /* Label de cada campo */
+  .login-label {
+    display: block;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--gris-texto);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 6px;
+  }
+  
+  /* Boton de submit del login */
+  .login-boton {
+    width: 100%;
+    padding: 12px;
+    background-color: var(--rojo-principal);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 8px;
+    transition: background-color 0.2s;
+  }
+  
+  /* Boton de login al pasar el mouse */
+  .login-boton:hover {
+    background-color: var(--rojo-hover);
+  }
+  
+  /* Boton deshabilitado mientras carga */
+  .login-boton:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+  
+  /* Mensaje de error de credenciales */
+  .login-error {
+    background-color: var(--peligro-fondo);
+    color: var(--peligro-texto);
+    padding: 10px 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    margin-bottom: 16px;
+    text-align: center;
+  }

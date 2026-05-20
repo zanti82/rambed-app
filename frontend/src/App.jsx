@@ -1,122 +1,93 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import './App.css'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { useAuth } from './context/AuthContext';
+import Layout from './components/Layout';
+import Login from './pages/Login';
+import Dashboard from './pages/Dashboard';
+import Vendedores from './pages/Vendedores';
+import Referencias from './pages/Referencias';
+import Inventario from './pages/Inventario';
+import Clientes from './pages/Clientes';
+import Facturas from './pages/Facturas';
+import NuevaFactura from './pages/NuevaFactura';
+import Devoluciones from './pages/Devoluciones';
 
-function App() {
-  const [count, setCount] = useState(0)
+// Componente que protege rutas que requieren autenticacion
+function RutaProtegida({ children }) {
+  // Obtiene el usuario del contexto de autenticacion
+  const { usuario } = useAuth();
 
-  return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+  // Si no hay usuario redirige al login
+  if (usuario === null) {
+    return <Navigate to="/login" />;
+  }
 
-      <div className="ticks"></div>
-
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
-
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+  // Si hay usuario muestra el contenido dentro del layout
+  return <Layout>{children}</Layout>;
 }
 
-export default App
+// Componente que protege rutas que requieren rol ADMIN
+function RutaAdmin({ children }) {
+  // Obtiene el usuario y la funcion esAdmin del contexto
+  const { usuario, esAdmin } = useAuth();
+
+  // Si no hay usuario redirige al login
+  if (usuario === null) {
+    return <Navigate to="/login" />;
+  }
+
+  // Si no es admin redirige al dashboard
+  if (esAdmin() === false) {
+    return <Navigate to="/dashboard" />;
+  }
+
+  // Si es admin muestra el contenido dentro del layout
+  return <Layout>{children}</Layout>;
+}
+
+export default function App() {
+  return (
+    <BrowserRouter>
+      <Routes>
+        {/* Ruta publica de login */}
+        <Route path="/login" element={<Login />} />
+
+        {/* Rutas protegidas que requieren autenticacion */}
+        <Route path="/dashboard" element={
+          <RutaProtegida><Dashboard /></RutaProtegida>
+        } />
+
+        <Route path="/inventario" element={
+          <RutaProtegida><Inventario /></RutaProtegida>
+        } />
+
+        <Route path="/clientes" element={
+          <RutaProtegida><Clientes /></RutaProtegida>
+        } />
+
+        <Route path="/facturas" element={
+          <RutaProtegida><Facturas /></RutaProtegida>
+        } />
+
+        <Route path="/facturas/nueva" element={
+          <RutaProtegida><NuevaFactura /></RutaProtegida>
+        } />
+
+        <Route path="/devoluciones" element={
+          <RutaProtegida><Devoluciones /></RutaProtegida>
+        } />
+
+        {/* Rutas solo para ADMIN */}
+        <Route path="/vendedores" element={
+          <RutaAdmin><Vendedores /></RutaAdmin>
+        } />
+
+        <Route path="/referencias" element={
+          <RutaAdmin><Referencias /></RutaAdmin>
+        } />
+
+        {/* Redirige la raiz al dashboard */}
+        <Route path="/" element={<Navigate to="/dashboard" />} />
+      </Routes>
+    </BrowserRouter>
+  );
+}
