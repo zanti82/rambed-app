@@ -1,0 +1,132 @@
+/* Grid de tarjetas de resumen */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+  
+  /* Cada tarjeta de resumen */
+  .dashboard-card {
+    background-color: var(--fondo-secundario);
+    border: 1px solid var(--borde);
+    border-radius: 12px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  /* Fila superior de la card con icono y titulo */
+  .dashboard-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  
+  /* Titulo de la card */
+  .dashboard-card-titulo {
+    font-size: 13px;
+    color: var(--gris-texto);
+    font-weight: 500;
+  }
+  
+  /* Icono de la card */
+  .dashboard-card-icono {
+    font-size: 20px;
+  }
+  
+  /* Valor principal de la card */
+  .dashboard-card-valor {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--blanco-texto);
+  }
+  
+  /* Descripcion secundaria de la card */
+  .dashboard-card-descripcion {
+    font-size: 12px;
+    color: var(--gris-texto);
+  }
+  
+  /* Linea de color en la parte inferior de la card */
+  .dashboard-card-linea {
+    height: 3px;
+    border-radius: 2px;
+    margin-top: 4px;
+  }
+  
+  /* Seccion de actividad reciente */
+  .dashboard-seccion {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  
+  /* Card de actividad reciente */
+  .dashboard-actividad {
+    background-color: var(--fondo-secundario);
+    border: 1px solid var(--borde);
+    border-radius: 12px;
+    padding: 20px;
+  }
+  
+  /* Titulo de la seccion de actividad */
+  .dashboard-actividad-titulo {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--blanco-texto);
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--borde);
+  }
+  
+  /* Cada fila de actividad */
+  .dashboard-actividad-fila {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--borde);
+  }
+  
+  /* Ultima fila sin borde */
+  .dashboard-actividad-fila:last-child {
+    border-bottom: none;
+  }
+  
+  /* Texto principal de la fila */
+  .dashboard-actividad-texto {
+    font-size: 13px;
+    color: var(--blanco-texto);
+  }
+  
+  /* Texto secundario de la fila */
+  .dashboard-actividad-secundario {
+    font-size: 12px;
+    color: var(--gris-texto);
+    margin-top: 2px;
+  }
+  
+  /* Valor de la fila */
+  .dashboard-actividad-valor {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--blanco-texto);
+  }
+  
+  /* Mensaje cuando no hay datos */
+  .dashboard-vacio {
+    font-size: 13px;
+    color: var(--gris-texto);
+    text-align: center;
+    padding: 24px 0;
+  }
+  
+  /* Estado de carga */
+  .dashboard-cargando {
+    font-size: 13px;
+    color: var(--gris-texto);
+    text-align: center;
+    padding: 24px 0;
+  }

@@ -1,0 +1,174 @@
+/* Contenedor del sidebar */
+.sidebar {
+    width: 240px;
+    min-height: 100vh;
+    background-color: var(--fondo-secundario);
+    border-right: 1px solid var(--borde);
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+  }
+  
+  /* Logo y nombre de la app */
+  .sidebar-logo {
+    padding: 24px 20px;
+    border-bottom: 1px solid var(--borde);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  
+  /* Circulo rojo del logo */
+  .sidebar-logo-icono {
+    width: 36px;
+    height: 36px;
+    background-color: var(--rojo-principal);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 16px;
+    color: #fff;
+    flex-shrink: 0;
+  }
+  
+  /* Nombre de la app */
+  .sidebar-logo-nombre {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--blanco-texto);
+  }
+  
+  /* Subtitulo del logo */
+  .sidebar-logo-subtitulo {
+    font-size: 11px;
+    color: var(--gris-texto);
+  }
+  
+  /* Lista de navegacion */
+  .sidebar-nav {
+    flex: 1;
+    padding: 16px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  
+  /* Separador de seccion en el nav */
+  .sidebar-seccion {
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--gris-texto);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 12px 8px 6px;
+  }
+  
+  /* Cada item del menu */
+  .sidebar-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    color: var(--gris-texto);
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 400;
+    transition: background-color 0.15s, color 0.15s;
+  }
+  
+  /* Item activo del menu */
+  .sidebar-item.activo {
+    background-color: var(--fondo-terciario);
+    color: var(--blanco-texto);
+  }
+  
+  /* Item al pasar el mouse */
+  .sidebar-item:hover {
+    background-color: var(--fondo-terciario);
+    color: var(--blanco-texto);
+  }
+  
+  /* Icono del item */
+  .sidebar-item-icono {
+    font-size: 16px;
+    width: 20px;
+    text-align: center;
+    flex-shrink: 0;
+  }
+  
+  /* Parte inferior del sidebar con info del usuario */
+  .sidebar-footer {
+    padding: 16px 12px;
+    border-top: 1px solid var(--borde);
+  }
+  
+  /* Contenedor de info del usuario */
+  .sidebar-usuario {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    margin-bottom: 8px;
+  }
+  
+  /* Avatar del usuario */
+  .sidebar-usuario-avatar {
+    width: 32px;
+    height: 32px;
+    background-color: var(--rojo-principal);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 600;
+    color: #fff;
+    flex-shrink: 0;
+  }
+  
+  /* Nombre del usuario */
+  .sidebar-usuario-nombre {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--blanco-texto);
+  }
+  
+  /* Rol del usuario */
+  .sidebar-usuario-rol {
+    font-size: 11px;
+    color: var(--gris-texto);
+  }
+  
+  /* Boton de cerrar sesion */
+  .sidebar-logout {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    color: var(--peligro-texto);
+    background: none;
+    border: none;
+    width: 100%;
+    font-size: 14px;
+    transition: background-color 0.15s;
+  }
+  
+  /* Boton logout al pasar el mouse */
+  .sidebar-logout:hover {
+    background-color: var(--peligro-fondo);
+  }
+  
+  /* Ajusta el contenido principal para que no quede detras del sidebar */
+  .contenido-principal {
+    margin-left: 240px;
+  }

@@ -1,0 +1,199 @@
+/* Importa la fuente Inter de Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+/* Variables de color de la marca Rambed360 */
+:root {
+  --fondo-principal:    #0f0f0f;
+  --fondo-secundario:   #1a1a1a;
+  --fondo-terciario:    #242424;
+  --rojo-principal:     #e63946;
+  --rojo-hover:         #c1121f;
+  --gris-texto:         #a0a0a0;
+  --blanco-texto:       #f0f0f0;
+  --borde:              #2e2e2e;
+  --exito-fondo:        #1a3a2a;
+  --exito-texto:        #4caf82;
+  --peligro-fondo:      #3b0a0a;
+  --peligro-texto:      #ff6b6b;
+  --amarillo-fondo:     #3a2e00;
+  --amarillo-texto:     #ffc107;
+}
+
+/* Reset general */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Estilos base del body */
+body {
+  font-family: 'Inter', sans-serif;
+  background-color: var(--fondo-principal);
+  color: var(--blanco-texto);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* Estilos base para inputs */
+input, select, textarea {
+  background-color: var(--fondo-terciario);
+  color: var(--blanco-texto);
+  border: 1px solid var(--borde);
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  width: 100%;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+/* Resalta el input cuando esta enfocado */
+input:focus, select:focus, textarea:focus {
+  border-color: var(--rojo-principal);
+}
+
+/* Estilos base para botones */
+button {
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  border-radius: 8px;
+  padding: 10px 20px;
+  cursor: pointer;
+  border: none;
+  font-weight: 500;
+  transition: background-color 0.2s, opacity 0.2s;
+}
+
+/* Boton primario rojo */
+.btn-primario {
+  background-color: var(--rojo-principal);
+  color: #fff;
+}
+
+/* Oscurece el boton primario al pasar el mouse */
+.btn-primario:hover {
+  background-color: var(--rojo-hover);
+}
+
+/* Boton secundario gris */
+.btn-secundario {
+  background-color: var(--fondo-terciario);
+  color: var(--blanco-texto);
+  border: 1px solid var(--borde);
+}
+
+/* Aclara el boton secundario al pasar el mouse */
+.btn-secundario:hover {
+  background-color: var(--borde);
+}
+
+/* Boton de peligro */
+.btn-peligro {
+  background-color: var(--peligro-fondo);
+  color: var(--peligro-texto);
+}
+
+/* Oscurece el boton de peligro al pasar el mouse */
+.btn-peligro:hover {
+  opacity: 0.8;
+}
+
+/* Contenedor principal del layout con sidebar */
+.layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* Contenido principal al lado del sidebar */
+.contenido-principal {
+  flex: 1;
+  padding: 32px;
+  overflow-y: auto;
+}
+
+/* Titulo de cada pagina */
+.titulo-pagina {
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--blanco-texto);
+  margin-bottom: 24px;
+}
+
+/* Card generico para secciones */
+.card {
+  background-color: var(--fondo-secundario);
+  border: 1px solid var(--borde);
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 24px;
+}
+
+/* Mensaje de error generico */
+.error-mensaje {
+  background-color: var(--peligro-fondo);
+  color: var(--peligro-texto);
+  padding: 10px 16px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  font-size: 13px;
+}
+
+/* Mensaje de exito generico */
+.exito-mensaje {
+  background-color: var(--exito-fondo);
+  color: var(--exito-texto);
+  padding: 10px 16px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  font-size: 13px;
+}
+
+/* Badge de estado */
+.badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* Badge verde para activo o pagado */
+.badge-exito {
+  background-color: var(--exito-fondo);
+  color: var(--exito-texto);
+}
+
+/* Badge rojo para inactivo o anulado */
+.badge-peligro {
+  background-color: var(--peligro-fondo);
+  color: var(--peligro-texto);
+}
+
+/* Badge amarillo para pendiente */
+.badge-pendiente {
+  background-color: var(--amarillo-fondo);
+  color: var(--amarillo-texto);
+}
+
+/* Scrollbar personalizado */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+/* Track del scrollbar */
+::-webkit-scrollbar-track {
+  background: var(--fondo-principal);
+}
+
+/* Thumb del scrollbar */
+::-webkit-scrollbar-thumb {
+  background: var(--borde);
+  border-radius: 3px;
+}
+
+/* Thumb del scrollbar al pasar el mouse */
+::-webkit-scrollbar-thumb:hover {
+  background: var(--gris-texto);
+}
