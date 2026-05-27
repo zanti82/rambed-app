@@ -4,6 +4,8 @@ package Rambed360.dto.response;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+import Rambed360.entity.Talla;
+
 public class DevolucionResponse {
 
     // ID de la devolucion
@@ -22,7 +24,7 @@ public class DevolucionResponse {
     private String referencia;
 
     // Talla del producto devuelto
-    private String talla;
+    private Talla talla;
 
     // Cantidad devuelta
     private Integer cantidad;
@@ -51,8 +53,8 @@ public class DevolucionResponse {
     public String getReferencia() { return referencia; }
     public void setReferencia(String referencia) { this.referencia = referencia; }
 
-    public String getTalla() { return talla; }
-    public void setTalla(String talla) { this.talla = talla; }
+    public Talla getTalla() { return talla; }
+    public void setTalla(Talla talla) { this.talla = talla; }
 
     public Integer getCantidad() { return cantidad; }
     public void setCantidad(Integer cantidad) { this.cantidad = cantidad; }

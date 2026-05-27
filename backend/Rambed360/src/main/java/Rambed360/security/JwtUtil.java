@@ -7,15 +7,24 @@ import io.jsonwebtoken.security.Keys;
 import org.springframework.stereotype.Component;
 import java.security.Key;
 import java.util.Date;
+import org.springframework.beans.factory.annotation.Value;
 
 @Component
 public class JwtUtil {
 
     // Clave secreta para firmar el token
-    private final Key claveSecreta = Keys.secretKeyFor(SignatureAlgorithm.HS256);
+    @Value("${jwt.secret}")
+    private String secreto;
 
     // Tiempo de expiracion del token: 8 horas en milisegundos
     private final long tiempoExpiracion = 8 * 60 * 60 * 1000;
+
+    // Convierte el string secreto en una clave valida para JWT
+    private Key obtenerClave() {
+        // Convierte el secreto a bytes y crea la clave
+        byte[] claveBytes = secreto.getBytes();
+        return Keys.hmacShaKeyFor(claveBytes);
+    }
 
     // Genera un token JWT con el username y el rol del usuario
     public String generarToken(String username, String rol) {
@@ -26,7 +35,7 @@ public class JwtUtil {
             .claim("rol", rol)
             .setIssuedAt(new Date())
             .setExpiration(new Date(System.currentTimeMillis() + tiempoExpiracion))
-            .signWith(claveSecreta)
+            .signWith(obtenerClave(), SignatureAlgorithm.HS256)
             .compact();
 
         return token;
@@ -36,7 +45,7 @@ public class JwtUtil {
     public String extraerUsername(String token) {
         // Obtiene todos los claims del token
         Claims claims = Jwts.parserBuilder()
-            .setSigningKey(claveSecreta)
+            .setSigningKey(obtenerClave())
             .build()
             .parseClaimsJws(token)
             .getBody();
@@ -48,7 +57,7 @@ public class JwtUtil {
     public String extraerRol(String token) {
         // Obtiene todos los claims del token
         Claims claims = Jwts.parserBuilder()
-            .setSigningKey(claveSecreta)
+            .setSigningKey(obtenerClave())
             .build()
             .parseClaimsJws(token)
             .getBody();
@@ -61,7 +70,7 @@ public class JwtUtil {
         try {
             // Intenta parsear el token, si falla lanza una excepcion
             Jwts.parserBuilder()
-                .setSigningKey(claveSecreta)
+                .setSigningKey(obtenerClave())
                 .build()
                 .parseClaimsJws(token);
             return true;

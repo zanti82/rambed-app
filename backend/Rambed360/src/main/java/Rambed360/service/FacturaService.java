@@ -156,11 +156,7 @@ public class FacturaService {
     // Guarda una factura nueva recibiendo un DTO
     public FacturaResponse guardar(FacturaRequest request) {
 
-        // Valida que el numero de factura no venga vacio
-        if (request.getNumeroFactura() == null || request.getNumeroFactura().trim().isEmpty()) {
-            throw new RuntimeException("El numero de factura es obligatorio");
-        }
-
+        
         // Valida que venga un cliente
         if (request.getClienteId() == null) {
             throw new RuntimeException("El cliente es obligatorio");
@@ -176,14 +172,7 @@ public class FacturaService {
             throw new RuntimeException("La fecha de emision es obligatoria");
         }
 
-        // Valida que no exista otra factura con el mismo numero
-        Optional<Factura> existente = facturaRepository.findByNumeroFactura(request.getNumeroFactura().trim());
-
-        // Si ya existe lanza un error
-        if (existente.isPresent()) {
-            throw new RuntimeException("Ya existe una factura con el numero: " + request.getNumeroFactura());
-        }
-
+        
         // Busca el cliente en la base de datos
         Optional<Cliente> clienteResultado = clienteRepository.findById(request.getClienteId());
 
@@ -200,29 +189,32 @@ public class FacturaService {
             throw new RuntimeException("El vendedor no existe");
         }
 
-        // Crea el objeto Factura vacio
-        Factura factурaNueva = new Factura();
+        // Genera el numero de factura automaticamente
+        String numeroFactura = generarNumeroFactura();
 
-        // Asigna el numero de factura limpio
-        factурaNueva.setNumeroFactura(request.getNumeroFactura().trim());
+        // Crea el objeto Factura vacio
+        Factura facturaNueva = new Factura();
+
+        // Asigna el numero generado automaticamente
+        facturaNueva.setNumeroFactura(numeroFactura);
 
         // Asigna el cliente encontrado
-        factурaNueva.setCliente(clienteResultado.get());
+        facturaNueva.setCliente(clienteResultado.get());
 
         // Asigna el vendedor encontrado
-        factурaNueva.setVendedor(vendedorResultado.get());
+        facturaNueva.setVendedor(vendedorResultado.get());
 
         // Asigna la fecha de emision
-        factурaNueva.setFechaEmision(request.getFechaEmision());
+        facturaNueva.setFechaEmision(request.getFechaEmision());
 
         // Asigna las notas opcionales
-        factурaNueva.setNotas(request.getNotas());
+        facturaNueva.setNotas(request.getNotas());
 
         // Asigna el estado pendiente por defecto
-        factурaNueva.setEstado(EstadoFactura.pendiente);
+        facturaNueva.setEstado(EstadoFactura.pendiente);
 
         // Guarda la factura en la base de datos
-        Factura facturaGuardada = facturaRepository.save(factурaNueva);
+        Factura facturaGuardada = facturaRepository.save(facturaNueva);
 
         // Convierte y retorna como DTO
         FacturaResponse respuesta = convertirAResponse(facturaGuardada);
@@ -335,6 +327,31 @@ public class FacturaService {
         // Convierte y retorna como DTO
         FacturaResponse respuesta = convertirAResponse(facturaAnulada);
         return respuesta;
+    }
+
+        // Genera el siguiente numero de factura automaticamente
+    private String generarNumeroFactura() {
+        // Busca la ultima factura en la base de datos
+        Optional<Factura> ultimaFactura = facturaRepository.findUltimaFactura();
+
+        // Si no hay facturas empieza en REM-0001
+        if (ultimaFactura.isPresent() == false) {
+            return "REM-0001";
+        }
+
+        // Obtiene el numero de la ultima factura
+        String ultimoNumero = ultimaFactura.get().getNumeroFactura();
+
+        // Extrae solo el numero quitando el prefijo REM-
+        String numeroStr = ultimoNumero.replace("REM-", "");
+
+        // Convierte el numero a entero y suma 1
+        int siguienteNumero = Integer.parseInt(numeroStr) + 1;
+
+        // Formatea el numero con ceros a la izquierda hasta 4 digitos
+        String numeroFormateado = String.format("%04d", siguienteNumero);
+
+        return "REM-" + numeroFormateado;
     }
 
     // SOLO DESARROLLO - elimina fisicamente la factura

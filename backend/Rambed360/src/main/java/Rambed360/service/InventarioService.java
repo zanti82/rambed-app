@@ -142,6 +142,10 @@ public class InventarioService {
             throw new RuntimeException("El precio no puede ser negativo");
         }
 
+        // para cehquear
+        System.out.println("Talla recibida: " + request.getTalla());
+        System.out.println("ReferenciaId recibida: " + request.getReferenciaId());
+
         // Busca la referencia en la base de datos
         Optional<Referencia> referenciaResultado = referenciaRepository.findById(request.getReferenciaId());
 
@@ -159,6 +163,7 @@ public class InventarioService {
             request.getTalla()
         );
 
+           
         // Si ya existe lanza un error
         if (existente.isPresent()) {
             throw new RuntimeException("Ya existe un registro para esa referencia y talla");

@@ -179,7 +179,7 @@ public class DevolucionService {
         response.setReferencia(devolucion.getFacturaDetalle().getInventario().getReferencia().getReferencia());
 
         // Asigna la talla del producto devuelto
-        response.setTalla(devolucion.getFacturaDetalle().getInventario().getTalla().getValor());
+        response.setTalla(devolucion.getFacturaDetalle().getInventario().getTalla());
 
         // Asigna la cantidad devuelta
         response.setCantidad(devolucion.getCantidad());

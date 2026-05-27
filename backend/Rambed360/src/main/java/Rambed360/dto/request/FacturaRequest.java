@@ -5,9 +5,7 @@ import java.time.LocalDate;
 
 public class FacturaRequest {
 
-    // Numero de factura unico
-    private String numeroFactura;
-
+   
     // ID del cliente
     private Long clienteId;
 
@@ -20,9 +18,7 @@ public class FacturaRequest {
     // Notas opcionales
     private String notas;
 
-    public String getNumeroFactura() { return numeroFactura; }
-    public void setNumeroFactura(String numeroFactura) { this.numeroFactura = numeroFactura; }
-
+    
     public Long getClienteId() { return clienteId; }
     public void setClienteId(Long clienteId) { this.clienteId = clienteId; }
 
