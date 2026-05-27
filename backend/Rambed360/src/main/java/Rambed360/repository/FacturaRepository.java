@@ -1,6 +1,7 @@
 package Rambed360.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 
 import Rambed360.entity.Cliente;
 import Rambed360.entity.EstadoFactura;
@@ -23,4 +24,8 @@ public interface FacturaRepository extends JpaRepository<Factura, Long> {
 
     // Busca una factura por numero de factura para validar duplicados
     Optional<Factura> findByNumeroFactura(String numeroFactura);
+
+    // Busca la ultima factura creada para generar el siguiente numero
+    @Query("SELECT f FROM Factura f ORDER BY f.id DESC LIMIT 1")
+    Optional<Factura> findUltimaFactura();
 }

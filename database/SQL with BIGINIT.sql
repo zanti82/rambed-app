@@ -37,8 +37,9 @@ CREATE TABLE referencias (
 CREATE TABLE inventario (
   id              BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   referencia_id   BIGINT UNSIGNED NOT NULL,
-  talla           ENUM('4','6','8','10','12','14','16','18','20','22',
-                       '28','29','30','31','32','33','34','36','38','40',
+  talla           ENUM('T4','T6','T8','T10','T12','T14','T16','T18','T20','T22',
+                       'T28','T29','T30','T31','T32','T33','T34','T36','T38','T40',
+                       'T42','T44',
                        'XS','S','M','L','XL','XXL') NOT NULL,
   cantidad        INT UNSIGNED    NOT NULL DEFAULT 0,
   precio          DECIMAL(10,2)   NOT NULL DEFAULT 0.00,
@@ -119,3 +120,12 @@ ADD COLUMN identificacion VARCHAR(20) NOT NULL UNIQUE AFTER nombre;
 
 ALTER TABLE referencias 
 ADD COLUMN activo TINYINT NOT NULL DEFAULT 1 AFTER descripcion;
+
+alter table inventario DROP column TALLA;
+
+alter table inventario
+ADD column
+talla           ENUM('T4','T6','T8','T10','T12','T14','T16','T18','T20','T22',
+                       'T28','T29','T30','T31','T32','T33','T34','T36','T38','T40',
+                       'T42','T44',
+                       'XS','S','M','L','XL','XXL') NOT NULL;

@@ -15,12 +15,12 @@ public class CorsConfig {
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/api/**")
                         .allowedOrigins("http://localhost:5173")
-                        .allowedMethods("GET", "POST", "PUT", "DELETE")
+                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                         .allowedHeaders("*")
                         .allowCredentials(true)
 
                     // Tiempo en segundos que el navegador cachea la configuracion CORS
-                    .maxAge(3600);
+                        .maxAge(3600);
             }
         };
     }
