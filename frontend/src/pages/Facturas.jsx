@@ -5,6 +5,7 @@ import facturasApi from '../api/facturasApi';
 import facturaDetalleApi from '../api/facturaDetalleApi';
 import { useAuth } from '../context/AuthContext';
 import '../styles/tabla.css';
+import FacturaPrint from '../components/FacturaPrint';
 
 export default function Facturas() {
 
@@ -43,6 +44,15 @@ export default function Facturas() {
 
   // Obtiene el usuario y funciones del contexto
   const { esAdmin, usuario } = useAuth();
+
+  // Estado para mostrar la vista de impresion
+  const [mostrarPrint, setMostrarPrint] = useState(false);
+
+  // Estado para los items de impresion
+  const [itemsPrint, setItemsPrint] = useState([]);
+
+  // Estado para la factura a imprimir
+  const [facturaImprimir, setFacturaImprimir] = useState(null);
 
   // Hook para navegar a otras paginas
   const navigate = useNavigate();
@@ -195,6 +205,71 @@ export default function Facturas() {
     return Number(item.precioUnitario) * Number(item.cantidad);
   }
 
+  
+
+  // Abre la vista de impresion y carga los items
+  async function handleImprimir(factura) {
+    // Guarda la factura a imprimir
+    
+    setFacturaImprimir(factura);
+
+    // Limpia los items anteriores
+    setItemsPrint([]);
+
+    try {
+      // Carga los items de la factura
+      const respuesta = await facturaDetalleApi.listarPorFactura(factura.id);
+      console.log(respuesta.data)
+      setItemsPrint(respuesta.data);
+
+      // Activa la vista de impresion
+      setMostrarPrint(true);
+
+      // Espera que el DOM se actualice y lanza la impresion
+      //setTimeout(function() {
+       // window.print();
+      //  setMostrarPrint(false);
+      //}, 5000);
+
+    } catch (err) {
+      console.error('Error al cargar items para impresion:', err);
+    }
+  }
+
+  // Imprime la factura en una ventana nueva
+function handleImprimirVentana() {
+  // Obtiene el HTML del componente de factura
+  const contenido = document.getElementById('factura-print').innerHTML;
+
+  // Abre una ventana nueva
+  const ventana = window.open('', '_blank', 'width=900,height=700');
+
+  // Escribe el HTML de la factura en la ventana nueva
+  ventana.document.write(`
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <title>${facturaImprimir.numeroFactura}</title>
+        <style>
+          body { margin: 0; padding: 0; font-family: Arial, sans-serif; }
+          * { box-sizing: border-box; }
+        </style>
+      </head>
+      <body>
+        ${contenido}
+      </body>
+    </html>
+  `);
+
+  // Cierra el documento para que cargue bien
+  ventana.document.close();
+
+  // Espera que cargue y lanza la impresion
+  ventana.onload = function() {
+    ventana.print();
+  };
+}
+
   return (
     <div>
       {/* Titulo y boton nueva factura */}
@@ -306,6 +381,14 @@ export default function Facturas() {
                           🚫
                         </button>
                       )}
+
+                      {/* Boton imprimir */}
+                      <button
+                        className="tabla-btn-accion"
+                        title="Imprimir factura"
+                        onClick={function() { handleImprimir(factura); }}>
+                        🖨️
+                      </button>
                     </div>
                   </td>
                 </tr>
@@ -331,7 +414,7 @@ export default function Facturas() {
             <div>
               <div style={{ fontSize: 11, color: 'var(--gris-texto)', textTransform: 'uppercase', marginBottom: 4 }}>Cliente</div>
               <div style={{ fontSize: 14, fontWeight: 500 }}>{facturaSeleccionada.clienteNombre}</div>
-              <div style={{ fontSize: 12, color: 'var(--gris-texto)' }}>{facturaSeleccionada.clienteAlmacen}</div>
+              <div style={{ fontSize: 12 }}>{facturaSeleccionada.clienteAlmacen}</div>
             </div>
             <div>
               <div style={{ fontSize: 11, color: 'var(--gris-texto)', textTransform: 'uppercase', marginBottom: 4 }}>Vendedor</div>
@@ -441,6 +524,7 @@ export default function Facturas() {
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
               <span style={{ color: 'var(--gris-texto)', fontSize: 13 }}>Cliente</span>
               <span style={{ fontSize: 13 }}>{facturaSeleccionada.clienteNombre}</span>
+             
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
               <span style={{ color: 'var(--gris-texto)', fontSize: 13 }}>Subtotal a cobrar</span>
@@ -493,6 +577,36 @@ export default function Facturas() {
 
         </Modal>
       )}
+
+        {mostrarPrint && facturaImprimir && (
+          <div
+            style={{
+              position: "fixed",
+              inset: 0,
+              background: "rgba(0,0,0,.45)",
+              zIndex: 999999,
+              overflow: "auto",
+              padding: 24,
+            }}
+          >
+            <div style={{ background: "#fff", maxWidth: 900, margin: "0 auto" }}>
+              
+              <div style={{ display: "flex", gap: 8, padding: 12, borderBottom: "1px solid #eee" }}>
+                <button onClick={handleImprimirVentana}>Imprimir</button>
+                <button onClick={() => setMostrarPrint(false)}>Cerrar</button>
+              </div>
+
+              {/* Aquí debería verse la factura */}
+              <FacturaPrint factura={facturaImprimir} items={itemsPrint} />
+            </div>
+          </div>
+        )}
+
+              
+
+              
     </div>
+
+    
   );
 }

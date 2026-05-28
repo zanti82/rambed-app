@@ -53,10 +53,11 @@ public class SecurityConfig {
             .requestMatchers("/api/vendedores/**").hasRole("ADMIN")
             .requestMatchers("/api/referencias/**").hasRole("ADMIN")
             .requestMatchers("/api/inventario/**").hasAnyRole("ADMIN", "VENDEDOR")
-            .requestMatchers("/api/clientes/**").hasAnyRole("ADMIN")
+            .requestMatchers("/api/clientes/**").hasAnyRole("ADMIN", "VENDEDOR")
             .requestMatchers("/api/facturas/**").hasAnyRole("ADMIN", "VENDEDOR")
             .requestMatchers("/api/factura-detalle/**").hasAnyRole("ADMIN", "VENDEDOR")
             .requestMatchers("/api/devoluciones/**").hasAnyRole("ADMIN", "VENDEDOR")
+            .requestMatchers("/api/usuarios/**").hasRole("ADMIN")
             .requestMatchers("/api/auth/login", "/api/auth/hash").permitAll()
 
             // Cualquier otra ruta requiere autenticacion
