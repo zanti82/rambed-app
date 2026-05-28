@@ -123,6 +123,17 @@ export default function Sidebar() {
           </NavLink>
         )}
 
+        {esAdmin() && (
+          <NavLink
+            to="/usuarios"
+            className={function({ isActive }) {
+              return isActive ? 'sidebar-item activo' : 'sidebar-item';
+            }}>
+            <span className="sidebar-item-icono">🔐</span>
+            Usuarios
+          </NavLink>
+        )}
+
       </nav>
 
       {/* Footer con info del usuario y logout */}

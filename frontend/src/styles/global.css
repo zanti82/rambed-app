@@ -197,3 +197,43 @@ button {
 ::-webkit-scrollbar-thumb:hover {
   background: var(--gris-texto);
 }
+
+/* En pantalla: existe pero fuera del viewport */
+#factura-print-container {
+  position: fixed;
+  left: -10000px;
+  top: 0;
+  width: 800px;      /* o 100% si prefieres */
+  background: #fff;
+  z-index: 9999;
+}
+
+/* Estilos de impresion */
+@media print {
+  /* Oculta todo excepto la factura */
+  body > * {
+    display: none;
+  }
+
+  /* Muestra solo el contenido de impresion */
+  #factura-print-container {
+    display: block !important;
+  }
+
+  /* Quita margenes y fondos para impresion */
+  #factura-print {
+    padding: 0;
+    margin: 0;
+  }
+}
+
+/* Contenedor de impresion oculto por defecto */
+#factura-print-container {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background: #fff;
+  z-index: 9999;
+}

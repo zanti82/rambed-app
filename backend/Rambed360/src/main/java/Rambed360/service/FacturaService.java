@@ -382,6 +382,8 @@ public class FacturaService {
         // Asigna el ID y nombre del cliente
         response.setClienteId(factura.getCliente().getId());
         response.setClienteNombre(factura.getCliente().getNombre());
+        response.setClienteTelefono(factura.getCliente().getTelefono());
+        response.setClienteDireccion(factura.getCliente().getDireccion());
 
        
         // Asigna el ID y nombre del vendedor

@@ -20,6 +20,10 @@ public class FacturaResponse {
     // Nombre del cliente
     private String clienteNombre;
 
+    private String clienteDireccion;
+
+    private String clienteTelefono;
+
     // ID del vendedor
     private Long vendedorId;
 
@@ -92,4 +96,18 @@ public class FacturaResponse {
 
     public LocalDateTime getCreadoEn() { return creadoEn; }
     public void setCreadoEn(LocalDateTime creadoEn) { this.creadoEn = creadoEn; }
+    public String getClienteDireccion() {
+        return clienteDireccion;
+    }
+    public void setClienteDireccion(String clienteDireccion) {
+        this.clienteDireccion = clienteDireccion;
+    }
+    public String getClienteTelefono() {
+        return clienteTelefono;
+    }
+    public void setClienteTelefono(String clienteTelefono) {
+        this.clienteTelefono = clienteTelefono;
+    }
+
+    
 }
