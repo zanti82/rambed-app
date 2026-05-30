@@ -29,6 +29,9 @@ public class InventarioResponse {
 
     // Precio unitario
     private BigDecimal precio;
+    
+    //csoto unitario
+    private BigDecimal costo;
 
     // Fecha de ultima actualizacion
     private LocalDateTime actualizadoEn;
@@ -56,4 +59,7 @@ public class InventarioResponse {
 
     public LocalDateTime getActualizadoEn() { return actualizadoEn; }
     public void setActualizadoEn(LocalDateTime actualizadoEn) { this.actualizadoEn = actualizadoEn; }
+
+    public BigDecimal getCosto() { return costo; }
+public void setCosto(BigDecimal costo) { this.costo = costo; }
 }

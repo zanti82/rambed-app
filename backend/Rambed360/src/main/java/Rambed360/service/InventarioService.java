@@ -142,7 +142,12 @@ public class InventarioService {
             throw new RuntimeException("El precio no puede ser negativo");
         }
 
-        // para cehquear
+        // Valida que el costo no sea negativo
+        if (request.getCosto() == null || request.getCosto().signum() < 0) {
+            throw new RuntimeException("El Costo no puede ser negativo");
+        }
+
+        // para cehquear por error al recbir ref y talla
         System.out.println("Talla recibida: " + request.getTalla());
         System.out.println("ReferenciaId recibida: " + request.getReferenciaId());
 
@@ -175,6 +180,7 @@ public class InventarioService {
         inventario.setTalla(request.getTalla());
         inventario.setCantidad(request.getCantidad());
         inventario.setPrecio(request.getPrecio());
+        inventario.setCosto(request.getCosto());
 
         // Guarda el registro en la base de datos
         Inventario inventarioGuardado = inventarioRepository.save(inventario);
@@ -208,11 +214,19 @@ public class InventarioService {
             throw new RuntimeException("El precio no puede ser negativo");
         }
 
+        // Valida que el precio no sea negativo
+        if (request.getCosto() == null || request.getCosto().signum() < 0) {
+            throw new RuntimeException("El costo no puede ser negativo");
+        }
+
         // Actualiza la cantidad con el nuevo valor
         inventario.setCantidad(request.getCantidad());
 
         // Actualiza el precio con el nuevo valor
         inventario.setPrecio(request.getPrecio());
+        
+        // Actualiza el cost con el nuevo valor
+        inventario.setCosto(request.getCosto());
 
         // Guarda el registro actualizado
         Inventario inventarioActualizado = inventarioRepository.save(inventario);
@@ -261,6 +275,9 @@ public class InventarioService {
 
         // Asigna el precio unitario
         response.setPrecio(inventario.getPrecio());
+
+         // Asigna el precio unitario
+         response.setCosto(inventario.getCosto());
 
         return response;
     }
