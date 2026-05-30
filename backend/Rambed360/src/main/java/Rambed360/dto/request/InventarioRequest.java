@@ -18,6 +18,8 @@ public class InventarioRequest {
 
     // Precio unitario
     private BigDecimal precio;
+    // Costo por reff
+    private BigDecimal costo;
 
     public Long getReferenciaId() { return referenciaId; }
     public void setReferenciaId(Long referenciaId) { this.referenciaId = referenciaId; }
@@ -30,4 +32,7 @@ public class InventarioRequest {
 
     public BigDecimal getPrecio() { return precio; }
     public void setPrecio(BigDecimal precio) { this.precio = precio; }
+
+    public BigDecimal getCosto() { return costo; }
+    public void setCosto(BigDecimal costo) { this.costo = costo; }
 }

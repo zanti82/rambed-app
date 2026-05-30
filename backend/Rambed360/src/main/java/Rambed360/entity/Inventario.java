@@ -45,6 +45,10 @@ public class Inventario {
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal precio = BigDecimal.ZERO;
 
+    // Precio unitario del producto
+    @Column(nullable = false, precision = 10, scale = 2)
+    private BigDecimal costo = BigDecimal.ZERO;
+
     // Fecha de creacion, la maneja la base de datos
     @JsonIgnore
     @Column(name = "creado_en", updatable = false, insertable = false)
@@ -86,4 +90,9 @@ public class Inventario {
 
     public LocalDateTime getActualizadoEn() { return actualizadoEn; }
     public void setActualizadoEn(LocalDateTime actualizadoEn) { this.actualizadoEn = actualizadoEn; }
+
+    public BigDecimal getCosto() { return costo; }
+    public void setCosto(BigDecimal costo) { this.costo = costo; }
+
+    
 }

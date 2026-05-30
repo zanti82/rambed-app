@@ -43,6 +43,7 @@ CREATE TABLE inventario (
                        'XS','S','M','L','XL','XXL') NOT NULL,
   cantidad        INT UNSIGNED    NOT NULL DEFAULT 0,
   precio          DECIMAL(10,2)   NOT NULL DEFAULT 0.00,
+  costo 			DECIMAL(10,2) NOT NULL DEFAULT 0.00,
   creado_en       DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP,
   actualizado_en  DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   FOREIGN KEY (referencia_id) REFERENCES referencias(id),

@@ -4,6 +4,7 @@ select * from usuarios;
 select * from vendedores;
 select * from referencias;
 select * from inventario;
+select * from roles;
 SELECT id, referencia_id, talla, cantidad FROM inventario;
 SHOW INDEX FROM inventario;	
 
@@ -11,6 +12,9 @@ SHOW INDEX FROM inventario;
 SET FOREIGN_KEY_CHECKS = 1; 
 SET FOREIGN_KEY_CHECKS = 0;
 
+-- anexando costo al inevnatario
+ALTER TABLE inventario
+ADD COLUMN costo DECIMAL(10,2);
 
 
 
