@@ -1,4 +1,4 @@
-USE rambed_db;
+USE u475372255_rambed_db ;
 
 SET FOREIGN_KEY_CHECKS = 0;
 
@@ -38,8 +38,7 @@ CREATE TABLE inventario (
   id              BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   referencia_id   BIGINT UNSIGNED NOT NULL,
   talla           ENUM('T4','T6','T8','T10','T12','T14','T16','T18','T20','T22',
-                       'T28','T29','T30','T31','T32','T33','T34','T36','T38','T40',
-                       'T42','T44',
+                       'T28','T30','T32','T34','T36','T38','T40', 'T42','T44',
                        'XS','S','M','L','XL','XXL') NOT NULL,
   cantidad        INT UNSIGNED    NOT NULL DEFAULT 0,
   precio          DECIMAL(10,2)   NOT NULL DEFAULT 0.00,
@@ -122,11 +121,28 @@ ADD COLUMN identificacion VARCHAR(20) NOT NULL UNIQUE AFTER nombre;
 ALTER TABLE referencias 
 ADD COLUMN activo TINYINT NOT NULL DEFAULT 1 AFTER descripcion;
 
-alter table inventario DROP column TALLA;
+USE rambed_db;
 
-alter table inventario
-ADD column
-talla           ENUM('T4','T6','T8','T10','T12','T14','T16','T18','T20','T22',
-                       'T28','T29','T30','T31','T32','T33','T34','T36','T38','T40',
-                       'T42','T44',
-                       'XS','S','M','L','XL','XXL') NOT NULL;
+-- Tabla roles
+CREATE TABLE roles (
+  id        BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  nombre    VARCHAR(20) NOT NULL UNIQUE
+);
+
+-- Tabla usuarios
+CREATE TABLE usuarios (
+  id           BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  username     VARCHAR(50)     NOT NULL UNIQUE,
+  password     VARCHAR(255)    NOT NULL,
+  activo       TINYINT         NOT NULL DEFAULT 1,
+  rol_id       BIGINT UNSIGNED NOT NULL,
+  vendedor_id  BIGINT UNSIGNED NULL,
+  creado_en    DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (rol_id)      REFERENCES roles(id),
+  FOREIGN KEY (vendedor_id) REFERENCES vendedores(id),
+  UNIQUE KEY uq_vendedor (vendedor_id)
+);
+
+-- Roles iniciales
+INSERT INTO roles (nombre) VALUES ('ADMIN');
+INSERT INTO roles (nombre) VALUES ('VENDEDOR');
