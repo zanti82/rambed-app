@@ -3,7 +3,7 @@ import axios from 'axios';
 
 // Crea una instancia de axios con la URL base del backend
 const api = axios.create({
-  baseURL: 'https://rambed-app.vercel.app/api',
+  baseURL: 'https://rambed-app.vercel.app',
 });
 
 // Interceptor que agrega el token JWT a cada peticion automaticamente
