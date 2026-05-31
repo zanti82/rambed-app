@@ -14,7 +14,7 @@ public class CorsConfig {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/api/**") // en origin ponemos la url de railway
-                        .allowedOrigins("http://localhost:5173", "https://rambed-app.vercel.app")
+                        .allowedOrigins("http://localhost:5173",  "https://rambed-app.vercel.app")
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                         .allowedHeaders("*")
                         .allowCredentials(true)
