@@ -46,6 +46,9 @@ public class SecurityConfig {
         // Configura las rutas publicas y protegidas
         http.authorizeHttpRequests(auth -> auth
 
+            // Permite las peticiones OPTIONS sin autenticacion para el preflight de CORS
+            .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
+
             // La ruta de login es publica
             .requestMatchers("/api/auth/login").permitAll()
 
@@ -60,6 +63,7 @@ public class SecurityConfig {
             .requestMatchers("/api/dashboard/**").hasAnyRole("ADMIN", "VENDEDOR")
             .requestMatchers("/api/usuarios/**").hasRole("ADMIN")
             .requestMatchers("/api/auth/login", "/api/auth/hash").permitAll()
+            
 
             // Cualquier otra ruta requiere autenticacion
             .anyRequest().authenticated()
