@@ -57,6 +57,7 @@ public class SecurityConfig {
             .requestMatchers("/api/facturas/**").hasAnyRole("ADMIN", "VENDEDOR")
             .requestMatchers("/api/factura-detalle/**").hasAnyRole("ADMIN", "VENDEDOR")
             .requestMatchers("/api/devoluciones/**").hasAnyRole("ADMIN", "VENDEDOR")
+            .requestMatchers("/api/dashboard/**").hasAnyRole("ADMIN", "VENDEDOR")
             .requestMatchers("/api/usuarios/**").hasRole("ADMIN")
             .requestMatchers("/api/auth/login", "/api/auth/hash").permitAll()
 
