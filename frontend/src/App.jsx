@@ -12,6 +12,7 @@ import Facturas from './pages/Facturas';
 import NuevaFactura from './pages/NuevaFactura';
 import Devoluciones from './pages/Devoluciones';
 import Usuarios from './pages/Usuarios';
+import Dashboard2 from './pages/Dashboard2';
 
 export default function App() {
   return (
@@ -33,6 +34,7 @@ export default function App() {
         <Route path="/vendedores" element={<RutaAdmin><Vendedores /></RutaAdmin>} />
         <Route path="/referencias" element={<RutaAdmin><Referencias /></RutaAdmin>} />
         <Route path="/usuarios" element={<RutaAdmin><Usuarios /></RutaAdmin>} />
+        <Route path="/dashboard2" element={<RutaAdmin><Dashboard2 /></RutaAdmin>} />
 
         {/* Redirige la raiz al dashboard */}
         <Route path="/" element={<Navigate to="/dashboard" />} />

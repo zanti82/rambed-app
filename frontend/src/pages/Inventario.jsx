@@ -3,6 +3,8 @@ import Modal from '../components/Modal';
 import inventarioApi from '../api/inventarioApi';
 import referenciasApi from '../api/referenciasApi';
 import '../styles/tabla.css';
+import { useAuth } from '../context/AuthContext';
+
 
 // Tallas disponibles segun la base de datos
 const TALLAS = [
@@ -42,8 +44,12 @@ export default function Inventario() {
     referenciaId: '',
     talla: '',
     cantidad: '',
-    precio: ''
+    precio: '',
+    costo: '',
   });
+
+  //contexto para mostrar tablas con permiso admin
+  const { esAdmin } = useAuth();
 
   // Carga los datos al montar el componente
   useEffect(function() {
@@ -63,7 +69,7 @@ export default function Inventario() {
       setReferencias(respuestaReferencias.data);
 
     } catch (err) {
-      console.error('Error al cargar inventario:', err);
+      console.error('Error al cargar inventario linea 66', err);
     } finally {
       setCargando(false);
     }
@@ -72,7 +78,7 @@ export default function Inventario() {
   // Abre el modal para crear un registro nuevo
   function handleNuevo() {
     // Limpia el formulario
-    setForm({ referenciaId: '', talla: '', cantidad: '', precio: '' });
+    setForm({ referenciaId: '', talla: '', cantidad: '', precio: '', costo:'' });
     // Limpia el item que se estaba editando
     setItemEditando(null);
     // Limpia el error
@@ -88,7 +94,9 @@ export default function Inventario() {
       referenciaId: item.referenciaId,
       talla: item.talla,
       cantidad: item.cantidad,
-      precio: item.precio
+      precio: item.precio,
+     // despues - si costo es null usa cadena vacia
+      costo: item.costo !== null && item.costo !== undefined ? item.costo : ''
     });
     // Guarda el item que se esta editando
     setItemEditando(item);
@@ -107,6 +115,16 @@ export default function Inventario() {
 
   // Actualiza un campo del formulario
   function handleCampo(campo, valor) {
+
+    /*const nuevoForm = { esto es lo que hace de forma mas larga
+      referenciaId: item.referenciaId,
+      talla: item.talla,
+      cantidad: item.cantidad,
+      precio: item.precio
+     };
+  nuevoForm[campo] = valor;
+  setForm(nuevoForm); */
+
     setForm({ ...form, [campo]: valor });
   }
 
@@ -133,6 +151,11 @@ export default function Inventario() {
       return;
     }
 
+    if (form.costo === '' || Number(form.costo) < 0) {
+      setError('El precio no puede ser negativo');
+      return;
+    }
+
     setError('');
 
     // Arma el objeto request con los tipos correctos
@@ -140,7 +163,8 @@ export default function Inventario() {
       referenciaId: Number(form.referenciaId),
       talla: form.talla,
       cantidad: Number(form.cantidad),
-      precio: Number(form.precio)
+      precio: Number(form.precio),
+      costo: Number(form.costo)
     };
 
     try {
@@ -260,6 +284,10 @@ export default function Inventario() {
               <th>Talla</th>
               <th>Cantidad</th>
               <th>Precio</th>
+              {/* Columna costo solo para admin */}
+                {esAdmin() && (
+                  <th>Costo</th>
+                )}
               <th>Acciones</th>
             </tr>
           </thead>
@@ -296,6 +324,10 @@ export default function Inventario() {
                     </span>
                   </td>
                   <td>{formatearMoneda(item.precio)}</td>
+                  {/* Costo solo visible para admin */}
+                  {esAdmin() && (
+                      <td>{formatearMoneda(item.costo)}</td>
+                  )}
                   <td>
                     <div className="tabla-acciones">
                       {/* Boton editar */}
@@ -398,6 +430,18 @@ export default function Inventario() {
                 onChange={function(e) { handleCampo('precio', e.target.value); }}
               />
             </div>
+            {esAdmin() && (
+            <div className="modal-campo">
+                <label className="modal-label">Costo ($)</label>
+                <input
+                    type="number"
+                    min="0"
+                    placeholder="0"
+                    value={form.costo}
+                    onChange={function(e) { handleCampo('costo', e.target.value); }}
+                />
+            </div>
+            )}
           </div>
 
           {/* Botones del modal */}

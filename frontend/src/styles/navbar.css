@@ -18,7 +18,7 @@
     border-bottom: 1px solid var(--borde);
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 9px;
   }
   
   /* Circulo rojo del logo */
@@ -52,7 +52,7 @@
   /* Lista de navegacion */
   .sidebar-nav {
     flex: 1;
-    padding: 16px 12px;
+    padding: 5px 12px;
     display: flex;
     flex-direction: column;
     gap: 4px;
@@ -65,14 +65,14 @@
     color: var(--gris-texto);
     text-transform: uppercase;
     letter-spacing: 0.08em;
-    padding: 12px 8px 6px;
+    padding: 8px 8px 6px;
   }
   
   /* Cada item del menu */
   .sidebar-item {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
     padding: 10px 12px;
     border-radius: 8px;
     cursor: pointer;

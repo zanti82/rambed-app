@@ -38,7 +38,7 @@ export default function Sidebar() {
           <div className="sidebar-logo-subtitulo">Panel de gestión</div>
         </div>
       </div>
-
+      
       {/* Menu de navegacion */}
       <nav className="sidebar-nav">
 
@@ -113,6 +113,21 @@ export default function Sidebar() {
         )}
 
         {esAdmin() && (
+          <span className="sidebar-seccion">Administración</span>
+        )}
+
+        {esAdmin() && (
+          <NavLink
+            to="/dashboard2"
+            className={function({ isActive }) {
+              return isActive ? 'sidebar-item activo' : 'sidebar-item';
+            }}>
+            <span className="sidebar-item-icono">🧑‍💼</span>
+            Dashboard info
+          </NavLink>
+        )}
+
+        {esAdmin() && (
           <NavLink
             to="/referencias"
             className={function({ isActive }) {
@@ -147,13 +162,13 @@ export default function Sidebar() {
             <div className="sidebar-usuario-rol">{usuario ? usuario.rol : ''}</div>
           </div>
         </div>
-
         {/* Boton de cerrar sesion */}
-        <button className="sidebar-logout" onClick={handleLogout}>
+      <button className="sidebar-logout" onClick={handleLogout}>
           <span>🚪</span>
           Cerrar sesión
         </button>
 
+        
       </div>
     </aside>
   );

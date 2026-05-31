@@ -8,6 +8,7 @@ import Rambed360.entity.EstadoFactura;
 import Rambed360.entity.Factura;
 import Rambed360.entity.Vendedor;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -28,4 +29,31 @@ public interface FacturaRepository extends JpaRepository<Factura, Long> {
     // Busca la ultima factura creada para generar el siguiente numero
     @Query("SELECT f FROM Factura f ORDER BY f.id DESC LIMIT 1")
     Optional<Factura> findUltimaFactura();
+
+    // Trae los 20 clientes que mas han facturado por total
+    @Query("SELECT f.cliente.id, f.cliente.nombre, f.cliente.nombreAlmacen, SUM(f.total) as totalFacturado " +
+    "FROM Factura f " +
+    "WHERE f.estado != 'anulada' " +
+    "GROUP BY f.cliente.id, f.cliente.nombre, f.cliente.nombreAlmacen " +
+    "ORDER BY totalFacturado DESC " +
+    "LIMIT 20")
+    List<Object[]> findTop10Clientes();
+
+    // Trae las 20 referencias mas vendidas por unidades
+    @Query("SELECT fd.inventario.referencia.marca, fd.inventario.referencia.referencia, SUM(fd.cantidad) as totalUnidades " +
+    "FROM FacturaDetalle fd " +
+    "JOIN fd.factura f " +
+    "WHERE f.estado != 'anulada' " +
+    "GROUP BY fd.inventario.referencia.marca, fd.inventario.referencia.referencia " +
+    "ORDER BY totalUnidades DESC " +
+    "LIMIT 20")
+    List<Object[]> findTop10Referencias();
+
+    // Calcula la utilidad real de facturas pagadas
+    // precio vendido menos costo del producto
+    @Query("SELECT SUM((fd.precioUnitario - fd.inventario.costo) * fd.cantidad) " +
+        "FROM FacturaDetalle fd " +
+        "JOIN fd.factura f " +
+        "WHERE f.estado = 'pagada'")
+    BigDecimal calcularUtilidadReal();
 }
