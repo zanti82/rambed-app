@@ -54,6 +54,27 @@ export default function Facturas() {
   // Estado para la factura a imprimir
   const [facturaImprimir, setFacturaImprimir] = useState(null);
 
+  // Estado para mostrar el modal de abonos
+const [mostrarAbonos, setMostrarAbonos] = useState(false);
+
+// Estado para la lista de abonos de la factura seleccionada
+const [abonos, setAbonos] = useState([]);
+
+// Estado para el monto del abono nuevo
+const [montoAbono, setMontoAbono] = useState('');
+
+// Estado para la fecha del abono nuevo
+const [fechaAbono, setFechaAbono] = useState('');
+
+// Estado para las notas del abono nuevo
+const [notasAbono, setNotasAbono] = useState('');
+
+// Estado para el porcentaje de comision de pago
+const [porcComisionPago, setPorcComisionPago] = useState('4');
+
+// Estado de carga de abonos
+const [cargandoAbonos, setCargandoAbonos] = useState(false);
+
   // Hook para navegar a otras paginas
   const navigate = useNavigate();
 
@@ -125,6 +146,8 @@ export default function Facturas() {
       const pagoRequest = {
         descuentoPorcentaje: descuento !== '' ? Number(descuento) : 0
       };
+
+      console.log("abriendo modal con:"+pagoRequest)
 
       // Registra el pago en el backend
       await facturasApi.registrarPago(facturaSeleccionada.id, pagoRequest);
@@ -269,6 +292,119 @@ function handleImprimirVentana() {
     ventana.print();
   };
 }
+// Abre el modal de abonos y carga los abonos existentes
+async function handleAbonos(factura) {
+    // Guarda la factura seleccionada
+    setFacturaSeleccionada(factura);
+    // Limpia los campos
+    setMontoAbono('');
+    setFechaAbono('');
+    setNotasAbono('');
+    setError('');
+    // Abre el modal
+    setMostrarAbonos(true);
+    // Activa la carga
+    setCargandoAbonos(true);
+
+    try {
+        // Carga los abonos existentes de la factura
+        const respuesta = await facturasApi.listarAbonos(factura.id);
+        setAbonos(respuesta.data);
+    } catch (err) {
+        console.error('Error al cargar abonos:', err);
+    } finally {
+        setCargandoAbonos(false);
+    }
+  }
+
+// Registra un abono parcial
+async function handleRegistrarAbono() {
+  setError('');
+
+  // Valida que venga el monto
+  if (montoAbono === '' || Number(montoAbono) <= 0) {
+      setError('El monto del abono es obligatorio');
+      return;
+  }
+
+  // Valida que venga la fecha
+  if (fechaAbono === '') {
+      setError('La fecha del abono es obligatoria');
+      return;
+  }
+
+  try {
+      // Arma el request del abono
+      const abonoRequest = {
+          facturaId: facturaSeleccionada.id,
+          monto: Number(montoAbono),
+          fechaPago: fechaAbono,
+          notas: notasAbono !== '' ? notasAbono : null
+      };
+
+      // Registra el abono en el backend
+      await facturasApi.registrarAbono(abonoRequest);
+
+      // Limpia los campos del formulario
+      setMontoAbono('');
+      setFechaAbono('');
+      setNotasAbono('');
+
+      // Recarga los abonos y las facturas
+      const respuesta = await facturasApi.listarAbonos(facturaSeleccionada.id);
+      setAbonos(respuesta.data);
+      cargarFacturas();
+
+  } catch (err) {
+      if (err.response && err.response.data) {
+          setError(err.response.data);
+      } else {
+          setError('Error al registrar el abono');
+      }
+  }
+}
+
+async function handleMarcarPag() {
+  setError('');
+  
+  try{
+
+  }catch{
+    
+  }
+
+  
+}
+// Marca la factura como pagada con comision de pago
+async function handleMarcarPagada() {
+  setError('');
+
+  try {
+      // Arma el request con descuento y comision de pago
+      const pagoRequest = {
+          descuentoPorcentaje: descuento !== '' ? Number(descuento) : 0,
+          porcComisionPago: porcComisionPago !== '' ? Number(porcComisionPago) : 4
+      };
+
+      console.log("este el pago:" +pagoRequest)
+      // Registra el pago en el backend
+      await facturasApi.registrarPago(facturaSeleccionada.id, pagoRequest);
+
+      // Cierra los modales y recarga
+      setMostrarAbonos(false);
+      setMostrarPago(false);
+      setFacturaSeleccionada(null);
+      cargarFacturas();
+
+  } catch (err) {
+      if (err.response && err.response.data) {
+          setError(err.response.data);
+      } else {
+          setError('Error al marcar como pagada');
+      }
+  }
+}
+
 
   return (
     <div>
@@ -338,7 +474,15 @@ function handleImprimirVentana() {
             {cargando === false && facturasFiltradas().map(function(factura) {
               return (
                 <tr key={factura.id}>
-                  <td style={{ fontWeight: 500 }}>{factura.numeroFactura}</td>
+                  <td style={{ fontWeight: 500 }}>
+                    {factura.numeroFactura}
+                    {/* Muestra un indicador si la factura tiene abonos */}
+                    {Number(factura.totalPagado) > 0 && (
+                      <span style={{ marginLeft: 6, fontSize: 11, color: 'var(--amarillo-texto)', background: 'var(--amarillo-fondo)', padding: '2px 6px', borderRadius: 4 }}>
+                        Abonado {formatearMoneda(factura.totalPagado)}
+                      </span>
+                    )}
+                </td>
                   <td>
                     <div>{factura.clienteNombre}</div>
                     <div style={{ fontSize: 12, color: 'var(--gris-texto)' }}>{factura.clienteAlmacen}</div>
@@ -370,6 +514,15 @@ function handleImprimirVentana() {
                           onClick={function() { handleAbrirPago(factura); }}>
                           💰
                         </button>
+                      )}
+                      {/* Boton abonos solo si esta pendiente */}
+                      {factura.estado === 'pendiente' && (
+                          <button
+                              className="tabla-btn-accion"
+                              title="Abonos"
+                              onClick={function() { handleAbonos(factura); }}>
+                              💵
+                          </button>
                       )}
 
                       {/* Boton anular solo si no esta anulada y es admin */}
@@ -577,6 +730,144 @@ function handleImprimirVentana() {
 
         </Modal>
       )}
+
+      {/* Modal de abonos */}
+        {mostrarAbonos && facturaSeleccionada !== null && (
+            <Modal
+                titulo={'Abonos — ' + facturaSeleccionada.numeroFactura}
+                onCerrar={function() { setMostrarAbonos(false); setFacturaSeleccionada(null); }}>
+
+                {/* Error */}
+                {error !== '' && (
+                    <div className="error-mensaje">{error}</div>
+                )}
+
+                {/* Resumen de la factura */}
+                <div style={{ padding: 16, background: 'var(--fondo-terciario)', borderRadius: 8, marginBottom: 20 }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
+                        <span style={{ color: 'var(--gris-texto)', fontSize: 13 }}>Total factura</span>
+                        <span style={{ fontSize: 13, fontWeight: 600 }}>{formatearMoneda(facturaSeleccionada.subtotal)}</span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                        <span style={{ color: 'var(--gris-texto)', fontSize: 13 }}>Total abonado</span>
+                        <span style={{ fontSize: 13, color: 'var(--exito-texto)' }}>{formatearMoneda(facturaSeleccionada.totalPagado)}</span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 8, borderTop: '1px solid var(--borde)', paddingTop: 8 }}>
+                        <span style={{ color: 'var(--gris-texto)', fontSize: 13 }}>Saldo pendiente</span>
+                        <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--rojo-principal)' }}>
+                            {formatearMoneda(facturaSeleccionada.subtotal - facturaSeleccionada.totalPagado)}
+                        </span>
+                    </div>
+                </div>
+
+                {/* Historial de abonos */}
+                <div style={{ marginBottom: 20 }}>
+                    <div style={{ fontSize: 12, color: 'var(--gris-texto)', textTransform: 'uppercase', marginBottom: 8 }}>Historial de abonos</div>
+                    {cargandoAbonos && (
+                        <div style={{ fontSize: 13, color: 'var(--gris-texto)' }}>Cargando...</div>
+                    )}
+                    {cargandoAbonos === false && abonos.length === 0 && (
+                        <div style={{ fontSize: 13, color: 'var(--gris-texto)' }}>Sin abonos registrados</div>
+                    )}
+                    {cargandoAbonos === false && abonos.map(function(abono) {
+                        return (
+                            <div key={abono.id} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid var(--borde)', fontSize: 13 }}>
+                                <span style={{ color: 'var(--gris-texto)' }}>{abono.fechaPago}</span>
+                                <span style={{ fontWeight: 500, color: 'var(--exito-texto)' }}>{formatearMoneda(abono.monto)}</span>
+                                {abono.notas && <span style={{ color: 'var(--gris-texto)', fontSize: 12 }}>{abono.notas}</span>}
+                            </div>
+                        );
+                    })}
+                </div>
+
+                {/* Formulario nuevo abono */}
+                <div style={{ fontSize: 12, color: 'var(--gris-texto)', textTransform: 'uppercase', marginBottom: 12 }}>Registrar abono</div>
+                <div className="modal-campo">
+                    <label className="modal-label">Monto</label>
+                    <input
+                        type="number"
+                        min="0"
+                        placeholder="Monto del abono"
+                        value={montoAbono}
+                        onChange={function(e) { setMontoAbono(e.target.value); }}
+                    />
+                </div>
+                <div className="modal-campo">
+                    <label className="modal-label">Fecha</label>
+                    <input
+                        type="date"
+                        value={fechaAbono}
+                        onChange={function(e) { setFechaAbono(e.target.value); }}
+                    />
+                </div>
+                <div className="modal-campo">
+                    <label className="modal-label">Notas — opcional</label>
+                    <input
+                        type="text"
+                        placeholder="Observaciones del abono"
+                        value={notasAbono}
+                        onChange={function(e) { setNotasAbono(e.target.value); }}
+                    />
+                </div>
+
+                <div className="modal-footer" style={{ justifyContent: 'space-between' }}>
+                    {/* Boton marcar pagada */}
+                    <button className="btn-secundario" onClick={function() { setMostrarPago(true); }}>
+                        Marcar como pagada
+                    </button>
+                    <button className="btn-primario" onClick={handleRegistrarAbono}>
+                        Registrar abono
+                    </button>
+                </div>
+
+            </Modal>
+        )}
+
+        {/* Modal marcar como pagada desde abonos */}
+        {mostrarPago && facturaSeleccionada !== null && mostrarAbonos === false && (
+            <Modal
+                titulo={'Confirmar pago — ' + facturaSeleccionada.numeroFactura}
+                onCerrar={function() { setMostrarPago(false); }}>
+
+                {error !== '' && (
+                    <div className="error-mensaje">{error}</div>
+                )}
+
+                <div className="modal-campo">
+                    <label className="modal-label">Descuento (%) — opcional</label>
+                    <input
+                        type="number"
+                        min="0"
+                        max="100"
+                        placeholder="Ej: 10"
+                        value={descuento}
+                        onChange={function(e) { setDescuento(e.target.value); }}
+                    />
+                </div>
+
+                <div className="modal-campo">
+                    <label className="modal-label">% Comisión de pago (por defecto 4%)</label>
+                    <input
+                        type="number"
+                        min="0"
+                        max="100"
+                        placeholder="4"
+                        value={porcComisionPago}
+                        onChange={function(e) { setPorcComisionPago(e.target.value); }}
+                    />
+                </div>
+
+                <div className="modal-footer">
+                    <button className="btn-secundario" onClick={function() { setMostrarPago(false); }}>
+                        Cancelar
+                    </button>
+                    <button className="btn-primario" onClick={handleMarcarPagada}>
+                        Confirmar pago
+                    </button>
+                </div>
+
+            </Modal>
+        )}
 
         {mostrarPrint && facturaImprimir && (
           <div

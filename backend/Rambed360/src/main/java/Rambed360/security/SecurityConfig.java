@@ -1,10 +1,10 @@
 package Rambed360.security;
 
-import java.util.List;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -13,9 +13,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.CorsConfigurationSource;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
 
 
 
@@ -40,8 +38,9 @@ public class SecurityConfig {
         // Desactiva CSRF porque usamos JWT y no sesiones
         http.csrf(csrf -> csrf.disable());
 
-        
-        http.cors(cors -> cors.configure(http)); //cors
+       
+        //http.cors(cors -> cors.configure(http)); //cors este funiona en vercel
+        http.cors(Customizer.withDefaults());
 
         // Configura las rutas publicas y protegidas
         http.authorizeHttpRequests(auth -> auth
@@ -50,7 +49,7 @@ public class SecurityConfig {
             .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
 
             // La ruta de login es publica
-            .requestMatchers("/api/auth/login").permitAll()
+            .requestMatchers("/auth/login").permitAll()
 
             // Solo ADMIN puede gestionar vendedores, clientes y referencias
             .requestMatchers("/api/vendedores/**").hasRole("ADMIN")

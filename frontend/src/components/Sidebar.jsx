@@ -149,6 +149,17 @@ export default function Sidebar() {
           </NavLink>
         )}
 
+        {esAdmin() && (
+          <NavLink
+            to="/comisiones"
+            className={function({ isActive }) {
+              return isActive ? 'sidebar-item activo' : 'sidebar-item';
+            }}>
+            <span className="sidebar-item-icono">💰</span>
+            Comisiones
+          </NavLink>
+        )}
+
       </nav>
 
       {/* Footer con info del usuario y logout */}

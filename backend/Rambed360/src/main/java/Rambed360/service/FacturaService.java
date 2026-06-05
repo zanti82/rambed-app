@@ -13,6 +13,14 @@ import Rambed360.repository.ClienteRepository;
 import Rambed360.repository.FacturaDetalleRepository;
 import Rambed360.repository.FacturaRepository;
 import Rambed360.repository.InventarioRepository;
+import Rambed360.dto.request.FacturaPagoRequest;
+import Rambed360.dto.response.FacturaPagoResponse;
+import Rambed360.dto.response.ComisionResponse;
+import Rambed360.entity.Comision;
+import Rambed360.entity.FacturaPago;
+import Rambed360.repository.ComisionRepository;
+import Rambed360.repository.FacturaPagoRepository;
+import java.time.LocalDateTime;
 import Rambed360.repository.VendedorRepository;
 import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
@@ -40,17 +48,26 @@ public class FacturaService {
     // Repositorio para devolver stock al anular
     private final InventarioRepository inventarioRepository;
 
-    // Constructor explicito con las cinco dependencias
+    // Repositorio para registrar abonos parciales
+    private final FacturaPagoRepository facturaPagoRepository;
+
+    // Repositorio para gestionar comisiones
+    private final ComisionRepository comisionRepository;
+
     public FacturaService(FacturaRepository facturaRepository,
-                          ClienteRepository clienteRepository,
-                          VendedorRepository vendedorRepository,
-                          FacturaDetalleRepository facturaDetalleRepository,
-                          InventarioRepository inventarioRepository) {
+                ClienteRepository clienteRepository,
+                VendedorRepository vendedorRepository,
+                FacturaDetalleRepository facturaDetalleRepository,
+                InventarioRepository inventarioRepository,
+                FacturaPagoRepository facturaPagoRepository,
+                ComisionRepository comisionRepository) {
         this.facturaRepository = facturaRepository;
         this.clienteRepository = clienteRepository;
         this.vendedorRepository = vendedorRepository;
         this.facturaDetalleRepository = facturaDetalleRepository;
         this.inventarioRepository = inventarioRepository;
+        this.facturaPagoRepository = facturaPagoRepository;
+        this.comisionRepository = comisionRepository;
     }
 
     // Retorna todas las facturas como DTO
@@ -213,15 +230,45 @@ public class FacturaService {
         // Asigna el estado pendiente por defecto
         facturaNueva.setEstado(EstadoFactura.pendiente);
 
+        /////////////////////////////////////////////////////////////////
+        // Asigna el porcentaje de comision de venta si viene, si no queda en null
+        facturaNueva.setPorcComisionVenta(request.getPorcComisionVenta());
+
+       
+
         // Guarda la factura en la base de datos
         Factura facturaGuardada = facturaRepository.save(facturaNueva);
+        
+
+         // Calcula el monto de comision de venta si el porcentaje es mayor a cero
+         BigDecimal montoComisionVenta = BigDecimal.ZERO;
+         if (request.getPorcComisionVenta() != null && request.getPorcComisionVenta().compareTo(BigDecimal.ZERO) > 0) {
+             montoComisionVenta = facturaGuardada.getSubtotal()
+                 .multiply(request.getPorcComisionVenta())
+                 .divide(new BigDecimal("100"), 2, RoundingMode.HALF_UP);
+         }
+ 
+         // Crea el registro de comision para esta factura
+         Comision comisionNueva = new Comision(
+             facturaGuardada,
+             facturaGuardada.getVendedor(),
+             request.getPorcComisionVenta() != null ? request.getPorcComisionVenta() : BigDecimal.ZERO,
+             montoComisionVenta
+         );
+ 
+         // Guarda la comision en la base de datos
+         comisionRepository.save(comisionNueva);
+
+        
 
         // Convierte y retorna como DTO
         FacturaResponse respuesta = convertirAResponse(facturaGuardada);
+        
+
         return respuesta;
     }
 
-    // Registra el pago de una factura y aplica descuento si viene
+     // Marca una factura como pagada y genera la comision de pago
     public FacturaResponse registrarPago(Long id, PagoRequest request) {
 
         // Verifica que la factura exista
@@ -245,18 +292,18 @@ public class FacturaService {
             throw new RuntimeException("No se puede pagar una factura anulada");
         }
 
-        // Si viene descuento lo aplica, si no el total es igual al subtotal
+        // Si viene descuento lo aplica sobre el subtotal
         if (request.getDescuentoPorcentaje() != null && request.getDescuentoPorcentaje().compareTo(BigDecimal.ZERO) > 0) {
 
             // Guarda el porcentaje de descuento
             factura.setDescuentoPorcentaje(request.getDescuentoPorcentaje());
 
-            // Calcula el valor del descuento sobre el subtotal
+            // Calcula el valor del descuento
             BigDecimal valorDescuento = factura.getSubtotal()
                 .multiply(request.getDescuentoPorcentaje())
                 .divide(new BigDecimal("100"), 2, RoundingMode.HALF_UP);
 
-            // Calcula el total restando el descuento al subtotal
+            // Calcula el total con descuento
             BigDecimal totalConDescuento = factura.getSubtotal().subtract(valorDescuento);
 
             // Asigna el total calculado
@@ -267,14 +314,45 @@ public class FacturaService {
             factura.setTotal(factura.getSubtotal());
         }
 
-        // Registra la fecha de pago con la fecha actual
+        // Marca el total pagado igual al total final
+        factura.setTotalPagado(factura.getTotal());
+
+        // Registra la fecha de pago
         factura.setFechaPago(LocalDate.now());
 
         // Cambia el estado a pagada
         factura.setEstado(EstadoFactura.pagada);
 
-        // Guarda la factura actualizada
+        // Guarda la factura pagada
         Factura facturaPagada = facturaRepository.save(factura);
+
+        // Busca la comision existente de esta factura
+        Optional<Comision> comisionResultado = comisionRepository.findByFactura(facturaPagada);
+
+        // Si existe la comision calcula y registra el monto de pago
+        if (comisionResultado.isPresent() == true) {
+
+            // Guarda la comision encontrada
+            Comision comision = comisionResultado.get();
+
+            // Define el porcentaje de comision de pago, por defecto 4
+            BigDecimal porcentajePago = new BigDecimal("4");
+            if (request.getPorcComisionPago() != null) {
+                porcentajePago = request.getPorcComisionPago();
+            }
+
+            // Calcula el monto de la comision de pago sobre el total final
+            BigDecimal montoComisionPago = facturaPagada.getTotal()
+                .multiply(porcentajePago)
+                .divide(new BigDecimal("100"), 2, RoundingMode.HALF_UP);
+
+            // Asigna el porcentaje y monto calculado
+            comision.setPorcComisionPago(porcentajePago);
+            comision.setMontoComisionPago(montoComisionPago);
+
+            // Guarda la comision actualizada
+            comisionRepository.save(comision);
+        }
 
         // Convierte y retorna como DTO
         FacturaResponse respuesta = convertirAResponse(facturaPagada);
@@ -329,6 +407,53 @@ public class FacturaService {
         return respuesta;
     }
 
+    // Registra un abono parcial a una factura
+    public FacturaPagoResponse registrarAbono(FacturaPagoRequest request) {
+
+        // Verifica que la factura exista
+        Optional<Factura> resultado = facturaRepository.findById(request.getFacturaId());
+
+        // Si no existe lanza un error
+        if (resultado.isPresent() == false) {
+            throw new RuntimeException("Factura no encontrada con id: " + request.getFacturaId());
+        }
+
+        // Guarda la factura encontrada
+        Factura factura = resultado.get();
+
+        // Valida que la factura no este pagada
+        if (factura.getEstado() == EstadoFactura.pagada) {
+            throw new RuntimeException("La factura ya esta pagada");
+        }
+
+        // Valida que la factura no este anulada
+        if (factura.getEstado() == EstadoFactura.anulada) {
+            throw new RuntimeException("No se puede abonar a una factura anulada");
+        }
+
+        // Crea el registro del abono
+        FacturaPago abono = new FacturaPago(factura, request.getMonto(), request.getFechaPago());
+
+        // Asigna las notas opcionales
+        abono.setNotas(request.getNotas());
+
+        // Guarda el abono en la base de datos
+        FacturaPago abonoGuardado = facturaPagoRepository.save(abono);
+
+        // Suma el abono al total pagado de la factura
+        BigDecimal nuevoTotalPagado = factura.getTotalPagado().add(request.getMonto());
+
+        // Actualiza el total pagado en la factura
+        factura.setTotalPagado(nuevoTotalPagado);
+
+        // Guarda la factura actualizada
+        facturaRepository.save(factura);
+
+        // Convierte y retorna como DTO
+        FacturaPagoResponse respuesta = convertirAbonoAResponse(abonoGuardado);
+        return respuesta;
+    }
+
         // Genera el siguiente numero de factura automaticamente
     private String generarNumeroFactura() {
         // Busca la ultima factura en la base de datos
@@ -352,6 +477,82 @@ public class FacturaService {
         String numeroFormateado = String.format("%04d", siguienteNumero);
 
         return "REM-" + numeroFormateado;
+    }
+
+    // Retorna todos los abonos de una factura especifica
+    public List<FacturaPagoResponse> listarAbonosPorFactura(Long facturaId) {
+
+        // Verifica que la factura exista
+        Optional<Factura> resultado = facturaRepository.findById(facturaId);
+
+        // Si no existe lanza un error
+        if (resultado.isPresent() == false) {
+            throw new RuntimeException("Factura no encontrada con id: " + facturaId);
+        }
+
+        // Busca todos los abonos de esa factura
+        List<FacturaPago> abonos = facturaPagoRepository.findByFactura(resultado.get());
+
+        // Convierte cada abono a DTO y lo agrega a la lista
+        List<FacturaPagoResponse> respuesta = new ArrayList<>();
+        for (FacturaPago abono : abonos) {
+            FacturaPagoResponse dto = convertirAbonoAResponse(abono);
+            respuesta.add(dto);
+        }
+
+        return respuesta;
+    }
+
+    // Retorna todas las comisiones, con filtro opcional por liquidada
+    public List<ComisionResponse> listarComisiones(Integer liquidada) {
+
+        // Trae comisiones segun el filtro
+        List<Comision> comisiones = new ArrayList<>();
+        if (liquidada != null) {
+            comisiones = comisionRepository.findByLiquidada(liquidada);
+        } else {
+            comisiones = comisionRepository.findAll();
+        }
+
+        // Convierte cada comision a DTO
+        List<ComisionResponse> respuesta = new ArrayList<>();
+        for (Comision comision : comisiones) {
+            ComisionResponse dto = convertirComisionAResponse(comision);
+            respuesta.add(dto);
+        }
+
+        return respuesta;
+    }
+
+    // Marca como liquidadas todas las comisiones pendientes de un vendedor
+    public List<ComisionResponse> liquidarComisiones(Long vendedorId) {
+
+        // Verifica que el vendedor exista
+        Optional<Vendedor> resultado = vendedorRepository.findById(vendedorId);
+
+        // Si no existe lanza un error
+        if (resultado.isPresent() == false) {
+            throw new RuntimeException("Vendedor no encontrado con id: " + vendedorId);
+        }
+
+        // Busca todas las comisiones pendientes del vendedor
+        List<Comision> pendientes = comisionRepository.findByVendedorAndLiquidada(resultado.get(), 0);
+
+        // Marca cada comision como liquidada con la fecha actual
+        for (Comision comision : pendientes) {
+            comision.setLiquidada(1);
+            comision.setFechaLiquidacion(LocalDateTime.now());
+            comisionRepository.save(comision);
+        }
+
+        // Convierte y retorna las comisiones liquidadas
+        List<ComisionResponse> respuesta = new ArrayList<>();
+        for (Comision comision : pendientes) {
+            ComisionResponse dto = convertirComisionAResponse(comision);
+            respuesta.add(dto);
+        }
+
+        return respuesta;
     }
 
     // SOLO DESARROLLO - elimina fisicamente la factura
@@ -411,6 +612,38 @@ public class FacturaService {
         // Asigna las notas
         response.setNotas(factura.getNotas());
 
+        response.setTotalPagado(factura.getTotalPagado());
+        response.setPorcComisionVenta(factura.getPorcComisionVenta());
+
+        return response;
+    }
+
+        // Convierte un abono a DTO de respuesta
+    private FacturaPagoResponse convertirAbonoAResponse(FacturaPago abono) {
+        FacturaPagoResponse response = new FacturaPagoResponse();
+        response.setId(abono.getId());
+        response.setFacturaId(abono.getFactura().getId());
+        response.setNumeroFactura(abono.getFactura().getNumeroFactura());
+        response.setMonto(abono.getMonto());
+        response.setFechaPago(abono.getFechaPago());
+        response.setNotas(abono.getNotas());
+        return response;
+    }
+
+    // Convierte una comision a DTO de respuesta
+    private ComisionResponse convertirComisionAResponse(Comision comision) {
+        ComisionResponse response = new ComisionResponse();
+        response.setId(comision.getId());
+        response.setFacturaId(comision.getFactura().getId());
+        response.setNumeroFactura(comision.getFactura().getNumeroFactura());
+        response.setNombreVendedor(comision.getVendedor().getNombre());
+        response.setTotalFactura(comision.getFactura().getTotal());
+        response.setPorcComisionVenta(comision.getPorcComisionVenta());
+        response.setMontoComisionVenta(comision.getMontoComisionVenta());
+        response.setPorcComisionPago(comision.getPorcComisionPago());
+        response.setMontoComisionPago(comision.getMontoComisionPago());
+        response.setLiquidada(comision.getLiquidada());
+        response.setFechaLiquidacion(comision.getFechaLiquidacion());
         return response;
     }
 }

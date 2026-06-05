@@ -45,6 +45,11 @@ public class FacturaResponse {
     // Total final despues del descuento
     private BigDecimal total;
 
+     // Suma acumulada de abonos recibidos
+    private BigDecimal totalPagado;
+    // Porcentaje de comision de venta, 0 o 2, opcional
+    private BigDecimal porcComisionVenta;
+
     // Estado de la factura
     private EstadoFactura estado;
 
@@ -96,9 +101,16 @@ public class FacturaResponse {
 
     public LocalDateTime getCreadoEn() { return creadoEn; }
     public void setCreadoEn(LocalDateTime creadoEn) { this.creadoEn = creadoEn; }
+    public BigDecimal getTotalPagado() { return totalPagado; }
+    public void setTotalPagado(BigDecimal totalPagado) { this.totalPagado = totalPagado; }
+
+    public BigDecimal getPorcComisionVenta() { return porcComisionVenta; }
+    public void setPorcComisionVenta(BigDecimal porcComisionVenta) { this.porcComisionVenta = porcComisionVenta; }
+    
     public String getClienteDireccion() {
         return clienteDireccion;
     }
+    
     public void setClienteDireccion(String clienteDireccion) {
         this.clienteDireccion = clienteDireccion;
     }

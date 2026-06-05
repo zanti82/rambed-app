@@ -15,6 +15,7 @@ export default function NuevaFactura() {
    
     clienteId: '',
     vendedorId: '',
+    porcComisionVenta: '',
     fechaEmision: new Date().toISOString().split('T')[0],
     notas: ''
   });
@@ -148,6 +149,7 @@ export default function NuevaFactura() {
     
       clienteId: Number(form.clienteId),
       vendedorId: Number(form.vendedorId),
+      porcComisionVenta: form.porcComisionVenta !== '' ? Number(form.porcComisionVenta) : null,
       fechaEmision: form.fechaEmision,
       notas: form.notas
     };
@@ -370,6 +372,17 @@ export default function NuevaFactura() {
               value={form.fechaEmision}
               onChange={function(e) { handleCampo('fechaEmision', e.target.value); }}
             />
+          </div>
+
+          {/* Campo comision de venta opcional */}
+          <div className="modal-campo">
+              <label className="modal-label">Comisión de venta (%) — opcional</label>
+              <select
+                  value={form.porcComisionVenta}
+                  onChange={function(e) { handleCampo('porcComisionVenta', e.target.value); }}>
+                  <option value="">Sin comisión</option>
+                  <option value="2">2%</option>
+              </select>
           </div>
 
           {/* Campo notas */}

@@ -246,3 +246,41 @@ no en el SecurityConfig.
 
 ## Credenciales locales por defecto
 
+### Pagos parciales y comisiones
+- `factura_pagos` registra cada abono a una factura — una factura puede
+  tener varios abonos antes de marcarse como pagada
+- `total_pagado` en facturas acumula los abonos, no se calcula, se persiste
+- La factura NO se marca pagada automaticamente — hay un botón manual
+  que dispara el endpoint `/pagar` y en ese momento se calcula la comisión de pago
+- `comisiones` tiene una fila por factura (UNIQUE en factura_id)
+- `porc_comision_venta` en facturas es nullable — no todas las facturas
+  tienen comisión de venta (vendedor con 0% siempre)
+- La comisión de venta se calcula al crear la factura sobre el subtotal
+- La comisión de pago se calcula al marcar pagada sobre el total final
+  (ya con descuento aplicado si hubo)
+- `liquidada` es TINYINT 0/1 — se filtra con `findByLiquidada(0)` para
+  ver pendientes y `findByLiquidada(1)` para liquidadas
+- La liquidación marca todas las comisiones pendientes de un vendedor
+  con `liquidada=1` y registra `fecha_liquidacion` con `LocalDateTime.now()`
+- `PagoRequest` se reutilizó — se le agregó `porcComisionPago` en vez
+  de crear un DTO nuevo
+- Los métodos de comisiones y abonos viven en `FacturaService` y
+  `FacturaController` — no se crearon servicios separados
+
+  ### 7. Comisión de venta se calcula sobre subtotal, no total
+- La factura al crearse no tiene descuento todavía — el descuento
+  se aplica al momento de pagar
+- Por eso `monto_comision_venta` se calcula sobre `subtotal`
+- Y `monto_comision_pago` se calcula sobre `total` (ya con descuento)
+
+| FacturaPago     | SÍ | Relación anidada con Factura |
+| Comision        | SÍ | Relaciones anidadas profundas |
+
+- Pagos parciales con historial de abonos por factura ✅
+- Comisiones por vendedor con liquidación mensual ✅
+- Despliegue en VPS Hostinger con Nginx
+- Reportes de ventas por periodo
+- Recuperación de contraseña
+
+
+

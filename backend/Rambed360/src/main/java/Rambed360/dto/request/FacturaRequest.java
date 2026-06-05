@@ -1,6 +1,7 @@
 package Rambed360.dto.request;
 
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 public class FacturaRequest {
@@ -11,6 +12,9 @@ public class FacturaRequest {
 
     // ID del vendedor
     private Long vendedorId;
+    
+    //porcentaje de la comision
+    private BigDecimal porcComisionVenta;
 
     // Fecha de emision de la factura
     private LocalDate fechaEmision;
@@ -30,4 +34,13 @@ public class FacturaRequest {
 
     public String getNotas() { return notas; }
     public void setNotas(String notas) { this.notas = notas; }
+    
+    public BigDecimal getPorcComisionVenta() {
+        return porcComisionVenta;
+    }
+    public void setPorcComisionVenta(BigDecimal porcComisionVenta) {
+        this.porcComisionVenta = porcComisionVenta;
+    }
+
+    
 }
