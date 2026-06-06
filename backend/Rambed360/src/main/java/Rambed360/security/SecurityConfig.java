@@ -13,6 +13,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfigurationSource;
 
 
 
@@ -23,24 +24,25 @@ public class SecurityConfig {
 
     // Filtro JWT que intercepta cada peticion
     private final JwtFilter jwtFilter;
-    
 
-    // Constructor explicito con la dependencia del filtro
-    public SecurityConfig(JwtFilter jwtFilter) {
+    // Bean de CORS configurado en CorsConfig
+    private final CorsConfigurationSource corsConfigurationSource;
+
+    // Constructor explicito con las dos dependencias
+    public SecurityConfig(JwtFilter jwtFilter,
+                        CorsConfigurationSource corsConfigurationSource) {
         this.jwtFilter = jwtFilter;
-        
+        this.corsConfigurationSource = corsConfigurationSource;
     }
-
     // Configura las reglas de seguridad de la aplicacion
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
         // Desactiva CSRF porque usamos JWT y no sesiones
         http.csrf(csrf -> csrf.disable());
-
        
-        
-        http.cors(Customizer.withDefaults()); //este funciona en local host
+        // Usa el bean de CORS explicitamente
+        http.cors(cors -> cors.configurationSource(corsConfigurationSource));
 
         // Configura las rutas publicas y protegidas
         http.authorizeHttpRequests(auth -> auth
