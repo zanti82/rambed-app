@@ -53,6 +53,15 @@ public class Factura {
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal total = BigDecimal.ZERO;
 
+    // Suma acumulada de todos los abonos recibidos
+    @Column(name = "total_pagado", nullable = false, precision = 10, scale = 2)
+    private BigDecimal totalPagado = BigDecimal.ZERO;
+    
+    // Porcentaje de comision al vender, 0 o 2, nullable porque es opcional
+    @Column(name = "porc_comision_venta", precision = 5, scale = 2)
+    private BigDecimal porcComisionVenta;
+
+
     // Estado de la factura
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -110,6 +119,13 @@ public class Factura {
     public BigDecimal getTotal() { return total; }
     public void setTotal(BigDecimal total) { this.total = total; }
 
+    public BigDecimal getTotalPagado() { return totalPagado; }
+    public void setTotalPagado(BigDecimal totalPagado) { this.totalPagado = totalPagado; }
+ 
+    public BigDecimal getPorcComisionVenta() { return porcComisionVenta; }
+    public void setPorcComisionVenta(BigDecimal porcComisionVenta) { this.porcComisionVenta = porcComisionVenta; }
+
+
     public EstadoFactura getEstado() { return estado; }
     public void setEstado(EstadoFactura estado) { this.estado = estado; }
 
@@ -121,4 +137,6 @@ public class Factura {
 
     public LocalDateTime getActualizadoEn() { return actualizadoEn; }
     public void setActualizadoEn(LocalDateTime actualizadoEn) { this.actualizadoEn = actualizadoEn; }
+
+
 }

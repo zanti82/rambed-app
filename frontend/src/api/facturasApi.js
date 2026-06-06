@@ -46,6 +46,29 @@ function eliminar(id) {
   return api.delete('/facturas/' + id);
 }
 
+// Registra un abono parcial a una factura
+function registrarAbono(datos) {
+  return api.post('/facturas/abonos', datos);
+}
+
+// Obtiene todos los abonos de una factura
+function listarAbonos(facturaId) {
+  return api.get('/facturas/' + facturaId + '/abonos');
+}
+
+// Obtiene comisiones, con filtro opcional por liquidada (0 o 1)
+function listarComisiones(liquidada) {
+  if (liquidada !== undefined && liquidada !== null) {
+    return api.get('/facturas/comisiones?liquidada=' + liquidada);
+  }
+  return api.get('/facturas/comisiones');
+}
+
+// Liquida todas las comisiones pendientes de un vendedor
+function liquidarComisiones(vendedorId) {
+  return api.patch('/facturas/comisiones/liquidar/' + vendedorId);
+}
+
 export default {
   listarTodas,
   listarPorEstado,
@@ -55,5 +78,9 @@ export default {
   guardar,
   registrarPago,
   anular,
-  eliminar
+  eliminar,
+  registrarAbono,
+  listarAbonos,
+  listarComisiones,
+  liquidarComisiones
 };

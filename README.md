@@ -7,7 +7,7 @@ Sistema de gestión empresarial para control de inventario, clientes y facturaci
 - **Backend:** Java con Spring Boot
 - **Frontend:** React
 - **Base de datos:** MySQL hostinger
-- **Despliegue:** por definir
+- **Despliegue:** Vercel-Railay
 
 ## Módulos
 

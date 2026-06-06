@@ -4,13 +4,16 @@ import Rambed360.dto.request.FacturaDetalleRequest;
 import Rambed360.dto.response.FacturaDetalleResponse;
 import Rambed360.entity.Factura;
 import Rambed360.entity.FacturaDetalle;
+import Rambed360.entity.Comision;
 import Rambed360.entity.EstadoFactura;
 import Rambed360.entity.Inventario;
+import Rambed360.repository.ComisionRepository;
 import Rambed360.repository.FacturaDetalleRepository;
 import Rambed360.repository.FacturaRepository;
 import Rambed360.repository.InventarioRepository;
 import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -27,13 +30,18 @@ public class FacturaDetalleService {
     // Repositorio para validar y actualizar el inventario
     private final InventarioRepository inventarioRepository;
 
+    //repo de comsionn para la venta
+    private final ComisionRepository comisionRepository;
+
     // Constructor explicito con las tres dependencias
     public FacturaDetalleService(FacturaDetalleRepository facturaDetalleRepository,
                                   FacturaRepository facturaRepository,
-                                  InventarioRepository inventarioRepository) {
+                                  InventarioRepository inventarioRepository,
+                                  ComisionRepository comisionRepository ) {
         this.facturaDetalleRepository = facturaDetalleRepository;
         this.facturaRepository = facturaRepository;
         this.inventarioRepository = inventarioRepository;
+        this.comisionRepository = comisionRepository;
     }
 
     // Retorna todos los items de una factura como DTO
@@ -141,6 +149,30 @@ public class FacturaDetalleService {
         factura.setTotal(subtotalNuevo);
         facturaRepository.save(factura);
 
+        // Busca la comision de esta factura para actualizar el monto de venta
+        Optional<Comision> comisionResultado = comisionRepository.findByFactura(factura);
+
+        // Si existe la comision y tiene porcentaje mayor a cero recalcula el monto
+        if (comisionResultado.isPresent() == true) {
+            Comision comision = comisionResultado.get();
+
+            // Solo recalcula si el porcentaje es mayor a cero
+            if (comision.getPorcComisionVenta().compareTo(BigDecimal.ZERO) > 0) {
+                // Aplica el 12% de descuento base al subtotal antes de calcular la comision
+                BigDecimal subtotalConDescuento = subtotalNuevo
+                .multiply(new BigDecimal("0.88"));
+
+                // Calcula el monto de comision sobre el subtotal con descuento
+                BigDecimal montoNuevo = subtotalConDescuento
+                .multiply(comision.getPorcComisionVenta())
+                .divide(new BigDecimal("100"), 2, RoundingMode.HALF_UP);
+
+                // Actualiza el monto de comision de venta
+                comision.setMontoComisionVenta(montoNuevo);
+                comisionRepository.save(comision);
+            }
+        }
+
         // Guarda el nuevo item en la base de datos
         FacturaDetalle detalleGuardado = facturaDetalleRepository.save(detalle);
 
@@ -184,6 +216,30 @@ public class FacturaDetalleService {
         factura.setSubtotal(subtotalNuevo);
         factura.setTotal(subtotalNuevo);
         facturaRepository.save(factura);
+
+        // Busca la comision de esta factura para recalcular el monto de venta
+        Optional<Comision> comisionResultado = comisionRepository.findByFactura(factura);
+
+        // Si existe la comision y tiene porcentaje mayor a cero recalcula el monto
+        if (comisionResultado.isPresent() == true) {
+            Comision comision = comisionResultado.get();
+
+            // Solo recalcula si el porcentaje es mayor a cero
+            if (comision.getPorcComisionVenta().compareTo(BigDecimal.ZERO) > 0) {
+                // Aplica el 12% de descuento base al subtotal antes de calcular la comision
+                BigDecimal subtotalConDescuento = subtotalNuevo
+                .multiply(new BigDecimal("0.88"));
+
+                // Calcula el monto de comision sobre el subtotal con descuento
+                BigDecimal montoNuevo = subtotalConDescuento
+                .multiply(comision.getPorcComisionVenta())
+                .divide(new BigDecimal("100"), 2, RoundingMode.HALF_UP);
+
+                // Actualiza el monto de comision de venta
+                comision.setMontoComisionVenta(montoNuevo);
+                comisionRepository.save(comision);
+            }
+        }
 
         // Elimina el item de la base de datos
         facturaDetalleRepository.deleteById(id);

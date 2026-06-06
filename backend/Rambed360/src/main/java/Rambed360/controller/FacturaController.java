@@ -8,6 +8,10 @@ import Rambed360.service.FacturaService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
+import Rambed360.dto.request.FacturaPagoRequest;
+import Rambed360.dto.response.FacturaPagoResponse;
+import Rambed360.dto.response.ComisionResponse;
+
 
 @RestController
 @RequestMapping("/api/facturas")
@@ -77,6 +81,34 @@ public class FacturaController {
     public ResponseEntity<FacturaResponse> anular(@PathVariable Long id) {
         FacturaResponse facturaAnulada = facturaService.anular(id);
         return ResponseEntity.ok(facturaAnulada);
+    }
+
+        // Registra un abono parcial a una factura
+    @PostMapping("/abonos")
+    public ResponseEntity<FacturaPagoResponse> registrarAbono(@RequestBody FacturaPagoRequest request) {
+        FacturaPagoResponse abono = facturaService.registrarAbono(request);
+        return ResponseEntity.ok(abono);
+    }
+
+    // Retorna todos los abonos de una factura especifica
+    @GetMapping("/{facturaId}/abonos")
+    public List<FacturaPagoResponse> listarAbonos(@PathVariable Long facturaId) {
+        List<FacturaPagoResponse> abonos = facturaService.listarAbonosPorFactura(facturaId);
+        return abonos;
+    }
+
+    // Retorna comisiones, filtradas por liquidada si viene el parametro
+    @GetMapping("/comisiones")
+    public List<ComisionResponse> listarComisiones(@RequestParam(required = false) Integer liquidada) {
+        List<ComisionResponse> comisiones = facturaService.listarComisiones(liquidada);
+        return comisiones;
+    }
+
+    // Liquida todas las comisiones pendientes de un vendedor
+    @PatchMapping("/comisiones/liquidar/{vendedorId}")
+    public List<ComisionResponse> liquidarComisiones(@PathVariable Long vendedorId) {
+        List<ComisionResponse> liquidadas = facturaService.liquidarComisiones(vendedorId);
+        return liquidadas;
     }
 
     // SOLO DESARROLLO - elimina fisicamente la factura
