@@ -13,7 +13,7 @@ public class CorsConfig {
         return new WebMvcConfigurer() {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
-                registry.addMapping("/api/**") // en origin ponemos la url de railway aca (para local /** para vercel /api/* */) 
+                registry.addMapping("/**") // cubre todo
                         .allowedOrigins("http://localhost:5173",  "https://rambed-app.vercel.app")
                         .allowedMethods("GET", "POST", "PUT","PATCH", "DELETE", "OPTIONS")
                         .allowedHeaders("*")

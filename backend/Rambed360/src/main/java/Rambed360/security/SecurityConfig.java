@@ -39,8 +39,8 @@ public class SecurityConfig {
         http.csrf(csrf -> csrf.disable());
 
        
-        http.cors(cors -> cors.configure(http)); //cors este funiona en vercel
-        //http.cors(Customizer.withDefaults()); //este funciona en local host
+        
+        http.cors(Customizer.withDefaults()); //este funciona en local host
 
         // Configura las rutas publicas y protegidas
         http.authorizeHttpRequests(auth -> auth
@@ -48,9 +48,7 @@ public class SecurityConfig {
             // Permite las peticiones OPTIONS sin autenticacion para el preflight de CORS
             .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
 
-            // La ruta de login es publica
-            .requestMatchers("/auth/login").permitAll()
-
+           
             // Solo ADMIN puede gestionar vendedores, clientes y referencias
             .requestMatchers("/api/vendedores/**").hasRole("ADMIN")
             .requestMatchers("/api/referencias/**").hasRole("ADMIN")
