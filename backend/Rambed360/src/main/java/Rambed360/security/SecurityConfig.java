@@ -39,8 +39,8 @@ public class SecurityConfig {
         http.csrf(csrf -> csrf.disable());
 
        
-        //http.cors(cors -> cors.configure(http)); //cors este funiona en vercel
-        http.cors(Customizer.withDefaults());
+        http.cors(cors -> cors.configure(http)); //cors este funiona en vercel
+        //http.cors(Customizer.withDefaults()); //este funciona en local host
 
         // Configura las rutas publicas y protegidas
         http.authorizeHttpRequests(auth -> auth
