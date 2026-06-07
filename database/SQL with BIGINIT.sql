@@ -146,3 +146,5 @@ CREATE TABLE usuarios (
 -- Roles iniciales
 INSERT INTO roles (nombre) VALUES ('ADMIN');
 INSERT INTO roles (nombre) VALUES ('VENDEDOR');
+
+ALTER TABLE comisiones MODIFY COLUMN liquidada INT NOT NULL DEFAULT 0;

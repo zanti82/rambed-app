@@ -1,4 +1,6 @@
 use rambed_db;
+select * from facturas;
+select * from comisiones;
 -- Agrega campos de pagos parciales a facturas
 ALTER TABLE facturas
   ADD COLUMN total_pagado      DECIMAL(10,2) NOT NULL DEFAULT 0.00
