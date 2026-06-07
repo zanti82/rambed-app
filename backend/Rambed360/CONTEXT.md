@@ -282,5 +282,43 @@ no en el SecurityConfig.
 - Reportes de ventas por periodo
 - Recuperación de contraseña
 
+## Despliegue en producción
+
+### Arquitectura
+- Frontend: Vercel — https://rambed-app.vercel.app
+- Backend: Railway — https://rambed-app-production.up.railway.app
+- Base de datos: Hostinger MySQL — IP 82.197.82.170:3306
+
+### Variables de entorno en Railway
+DATABASE_URL=jdbc:mysql://82.197.82.170:3306/u475372255_rambed_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+DATABASE_USERNAME=tu_usuario
+DATABASE_PASSWORD=tu_password
+JWT_SECRET=tu_secreto
+SPRING_PROFILES_ACTIVE=prod
+
+### Perfiles de Spring
+- `application.properties` — base, apunta a localhost
+- `application-local.properties` — desarrollo local
+- `application-prod.properties` — producción Railway
+
+### Lecciones aprendidas en despliegue
+- Hostinger tiene límite de 500 conexiones/hora — no redesplegar en loop
+- HikariCP limitado a 2 conexiones en prod para no exceder el límite
+- `ddl-auto=validate` — los scripts SQL deben correrse manualmente antes de desplegar
+- DATABASE_URL debe incluir `&serverTimezone=UTC` o MySQL rechaza la conexión remota
+- Sin `SPRING_PROFILES_ACTIVE=prod` Railway usa el properties base y apunta a localhost
+
+### CORS
+- Configurado como bean `CorsConfigurationSource` en `CorsConfig.java`
+- Referenciado explícitamente en `SecurityConfig.java` con `cors.configurationSource(corsConfigurationSource)`
+- Nunca usar `Customizer.withDefaults()` — Spring Security puede bloquear OPTIONS antes de que llegue a MVC
+- Orígenes permitidos: localhost:5173 y rambed-app.vercel.app
+
+### Checklist antes de desplegar
+1. Correr scripts SQL pendientes en Hostinger
+2. Verificar variables de entorno en Railway
+3. Un solo redespliegue — esperar logs antes de volver a desplegar
+4. Buscar `Started Rambed360Application` en logs para confirmar arranque
+
 
 
