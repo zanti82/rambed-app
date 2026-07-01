@@ -21,6 +21,9 @@ public class DashboardResponse {
     // Total de productos con stock
     private Integer totalProductos;
 
+    // Total stock
+    private Integer totalInventario;
+
     // Costo total del inventario
     private BigDecimal costoTotalInventario;
 
@@ -62,6 +65,14 @@ public class DashboardResponse {
 
     public List<TopReferenciaResponse> getTop20Referencias() { return top20Referencias; }
     public void setTop20Referencias(List<TopReferenciaResponse> top20Referencias) { this.top20Referencias = top20Referencias; }
+
+    public Integer getTotalInventario() {
+        return totalInventario;
+    }
+
+    public void setTotalInventario(Integer totalInventario) {
+        this.totalInventario = totalInventario;
+    }
 
     
 }

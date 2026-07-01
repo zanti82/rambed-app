@@ -27,5 +27,9 @@ public interface InventarioRepository extends JpaRepository<Inventario, Long> {
     // Calcula el costo total del inventario
     @Query("SELECT SUM(i.costo * i.cantidad) FROM Inventario i")
     BigDecimal calcularCostoTotalInventario();
+
+    // Calcula el  total del inventario
+    @Query("SELECT SUM(i.cantidad) FROM Inventario i")
+    Integer calcularTotalInventario();
     
 }
