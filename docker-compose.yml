@@ -1,0 +1,57 @@
+version: "3.8"
+
+services:
+
+  mysql:
+    image: mysql:8
+    container_name: mysql_db
+    restart: always
+    env_file:
+      - .env
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - app_net
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build: ./backend/Rambed360
+    container_name: spring_api
+    restart: always
+    depends_on:
+      mysql:
+        condition: service_healthy
+    env_file:
+      - .env
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/${MYSQL_DATABASE}
+      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
+    ports:
+      - "8080:8080"
+    networks:
+      - app_net
+
+  frontend:
+    build: ./frontend
+    container_name: react_app
+    restart: always
+    ports:
+      - "80:80"
+    networks:
+      - app_net
+
+volumes:
+  mysql_data:
+
+networks:
+  app_net:
