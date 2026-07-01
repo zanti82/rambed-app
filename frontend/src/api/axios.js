@@ -3,8 +3,8 @@ import axios from 'axios';
 
 // Crea una instancia de axios con la URL base del backend
 const api = axios.create({
- baseURL: 'https://rambed-app-production.up.railway.app/api',
- //baseURL: 'http://localhost:8080/api',
+ //baseURL: 'https://rambed-app-production.up.railway.app/api',
+ baseURL: 'http://localhost:8080/api',
 });
 
 // Interceptor que agrega el token JWT a cada peticion automaticamente

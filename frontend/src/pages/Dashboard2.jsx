@@ -103,10 +103,23 @@ export default function Dashboard() {
         {esAdmin() && (
           <div className="dashboard-card">
             <div className="dashboard-card-header">
-              <span className="dashboard-card-titulo">Productos en stock</span>
+              <span className="dashboard-card-titulo">Referencias en stock</span>
               <span className="dashboard-card-icono">📦</span>
             </div>
             <div className="dashboard-card-valor">{datos.totalProductos}</div>
+            <div className="dashboard-card-descripcion">Referencias disponibles</div>
+            <div className="dashboard-card-linea" style={{ backgroundColor: '#a0a0a0' }}></div>
+          </div>
+        )}
+
+        {/* Card de productos en stock - solo admin */}
+        {esAdmin() && (
+          <div className="dashboard-card">
+            <div className="dashboard-card-header">
+              <span className="dashboard-card-titulo">stock total</span>
+              <span className="dashboard-card-icono">👖</span>
+            </div>
+            <div className="dashboard-card-valor">{datos.totalInventario}</div>
             <div className="dashboard-card-descripcion">Referencias disponibles</div>
             <div className="dashboard-card-linea" style={{ backgroundColor: '#a0a0a0' }}></div>
           </div>

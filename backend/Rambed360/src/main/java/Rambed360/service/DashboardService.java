@@ -73,6 +73,13 @@ public class DashboardService {
         }
         response.setCostoTotalInventario(costoTotal);
 
+        // Calcula el costo total del inventario
+        Integer inventarioTotal = inventarioRepository.calcularTotalInventario();
+        if (inventarioTotal == null) {
+            inventarioTotal = 0;
+        }
+        response.setTotalInventario(inventarioTotal);
+
         // ahora - utilidad real = precio vendido - costo del producto
         BigDecimal utilidadTotal = facturaRepository.calcularUtilidadReal();
 
